@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+  <title>דקדוק עברי 🇮🇱</title>
+  <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;700;900&family=Heebo:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--bg:#08080e;--surf:#111118;--surf2:#16161f;--border:#1e1e2a;--text:#e8e8f0;--dim:#666;--binyan:#e94560;--speech:#f5a623;--nikud:#0fb8a9;--passive:#a855f7;--ok:#4ecdc4;--bad:#e94560}
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+    html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Heebo',sans-serif;overflow-x:hidden}
+    .topbar{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;justify-content:space-between;align-items:center;padding:10px 16px;background:rgba(8,8,14,0.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
+    .app-logo{font-family:'Frank Ruhl Libre',serif;font-size:1rem;font-weight:700;color:var(--text);opacity:.8}
+    .lang-tog{display:flex;background:var(--surf2);border:1px solid var(--border);border-radius:20px;overflow:hidden}
+    .lang-btn{padding:6px 15px;font-size:.76rem;font-weight:700;border:none;background:none;color:var(--dim);cursor:pointer;transition:all .18s;font-family:'Heebo',sans-serif}
+    .lang-btn.on{background:var(--binyan);color:#fff;border-radius:20px}
+    .auto-speak-toggle{display:flex;align-items:center;gap:5px;cursor:pointer;padding:3px 0}
+    .auto-speak-toggle input{accent-color:var(--ok);width:14px;height:14px;cursor:pointer}
+    .auto-speak-lbl{font-size:.82rem;color:var(--dim);cursor:pointer;transition:color .18s}
+    .auto-speak-toggle:has(input:checked) .auto-speak-lbl{color:var(--ok)}
+    .speak-inline-btn{background:none;border:1.5px solid var(--border);border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.9rem;transition:all .18s;color:var(--dim);flex-shrink:0}
+    .speak-inline-btn.speaking{border-color:var(--ok);color:var(--ok);animation:pulse 1s ease-in-out infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+    .qtxt-wrap{display:flex;align-items:flex-start;gap:10px;margin-bottom:18px}
+    .qtxt-wrap .qtxt{margin-bottom:0;flex:1}
+    .botnav{position:fixed;bottom:0;left:0;right:0;z-index:200;display:flex;background:rgba(8,8,14,0.95);border-top:1px solid var(--border);backdrop-filter:blur(10px)}
+    .bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 0 12px;border:none;background:none;color:var(--dim);cursor:pointer;transition:all .18s;font-family:'Heebo',sans-serif;font-size:.7rem;gap:3px}
+    .bnav-btn .ico{font-size:1.3rem}
+    .bnav-btn.on{color:var(--binyan)}
+    .page{display:none;flex-direction:column;padding-top:52px;padding-bottom:62px;min-height:100vh}
+    .page.on{display:flex}
+    #p-home{background:radial-gradient(ellipse at 30% 25%,#1a0a1e 0%,var(--bg) 60%);align-items:center;justify-content:center;padding-top:72px;padding-bottom:80px;text-align:center;position:relative;overflow:hidden}
+    #p-home::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 20% 80%,rgba(233,69,96,.06) 0%,transparent 50%),radial-gradient(circle at 80% 20%,rgba(168,85,247,.06) 0%,transparent 50%);pointer-events:none}
+    .hflag{font-size:2.6rem;margin-bottom:12px;animation:bob 3s ease-in-out infinite}
+    @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+    .htitle{font-family:'Frank Ruhl Libre',serif;font-size:2.6rem;font-weight:900;line-height:1.1;margin-bottom:6px;background:linear-gradient(135deg,#e8e8f0,#9090b0);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .hsub{color:var(--dim);font-size:.88rem;margin-bottom:28px;line-height:1.7}
+    .mode-label{color:var(--dim);font-size:.75rem;letter-spacing:1px;margin-bottom:10px;text-transform:uppercase}
+    .mode-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;width:100%;max-width:340px;margin-bottom:24px}
+    .mode-card{background:var(--surf);border:1.5px solid var(--border);border-radius:13px;padding:13px 8px;cursor:pointer;transition:all .18s;text-align:center}
+    .mode-card.on{border-color:var(--binyan);background:rgba(233,69,96,.08)}
+    .mode-card:active{transform:scale(.97)}
+    .mode-ico{font-size:1.3rem;margin-bottom:4px}
+    .mode-name{font-size:.78rem;font-weight:700;color:var(--text)}
+    .mode-sub{font-size:.66rem;color:var(--dim);margin-top:2px}
+    .cat-label{color:var(--dim);font-size:.75rem;letter-spacing:1px;margin-bottom:10px;text-transform:uppercase}
+    .cgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;width:100%;max-width:340px;margin-bottom:26px}
+    .cc{background:var(--surf);border:1px solid var(--border);border-radius:13px;padding:14px 12px;cursor:pointer;transition:transform .15s;position:relative;overflow:hidden;text-align:right}
+    .cc::before{content:'';position:absolute;top:0;right:0;left:0;height:2.5px;background:var(--cc)}
+    .cc:active{transform:scale(.97)}
+    .cc-icon{font-size:1.3rem;margin-bottom:4px}
+    .cc-name{font-size:.8rem;font-weight:700}
+    .cc-n{font-size:.7rem;color:var(--dim);margin-top:2px}
+    .sbtn{background:linear-gradient(135deg,#e94560,#c0314d);color:#fff;border:none;border-radius:50px;padding:15px 44px;font-family:'Frank Ruhl Libre',serif;font-size:1.05rem;font-weight:700;cursor:pointer;width:100%;max-width:300px;box-shadow:0 8px 28px rgba(233,69,96,.33);transition:all .2s}
+    .sbtn:active{transform:scale(.97)}
+    #p-quiz{background:var(--bg);padding-bottom:0}
+    .qhdr{padding:14px 18px 11px;position:sticky;top:52px;z-index:10;background:var(--bg);border-bottom:1px solid var(--border)}
+    .qtop{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}
+    .xbtn{background:none;border:none;color:var(--dim);font-size:1.1rem;cursor:pointer;padding:4px 8px}
+    .cpill{padding:4px 13px;border-radius:20px;font-size:.76rem;font-weight:700;border:1px solid}
+    .qcnt{color:var(--dim);font-size:.82rem}
+    .ptrack{height:3px;background:var(--border);border-radius:3px;overflow:hidden}
+    .pfill{height:100%;border-radius:3px;transition:width .45s ease}
+    .qbody{padding:22px 18px 120px;flex:1}
+    .sbox{background:var(--surf2);border:1px solid var(--border);border-radius:13px;padding:14px 15px;margin-bottom:18px}
+    .slbl{color:var(--dim);font-size:.68rem;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px}
+    .stxt{font-family:'Frank Ruhl Libre',serif;font-size:1.2rem;line-height:1.85}
+    .qtxt{font-family:'Frank Ruhl Libre',serif;font-size:1.08rem;font-weight:700;line-height:1.65;margin-bottom:18px}
+    .olist{display:flex;flex-direction:column;gap:9px}
+    .obtn{width:100%;padding:13px 16px;border-radius:13px;border:1.5px solid var(--border);background:var(--surf);color:var(--text);font-family:'Heebo',sans-serif;font-size:.95rem;font-weight:500;text-align:right;cursor:pointer;transition:all .18s;display:flex;align-items:center;gap:9px}
+    .obtn:active:not(:disabled){transform:scale(.98)}
+    .obtn.ok{background:rgba(78,205,196,.13);border-color:var(--ok);color:var(--ok)}
+    .obtn.bad{background:rgba(233,69,96,.13);border-color:var(--bad);color:var(--bad)}
+    .obtn.dim{opacity:.28}
+    .oico{font-size:.95rem;flex-shrink:0;margin-right:auto}
+    .ebox{margin-top:16px;padding:14px 15px;background:var(--surf2);border-radius:13px;border:1px solid;animation:sup .28s ease}
+    @keyframes sup{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    .ehdr{display:flex;align-items:center;gap:7px;margin-bottom:7px}
+    .etitle{font-weight:700;font-size:.92rem}
+    .etxt{color:#999;font-size:.86rem;line-height:1.75}
+    .bonus-box{margin-top:14px;background:rgba(78,205,196,.06);border:1px solid rgba(78,205,196,.25);border-radius:13px;padding:14px 15px;animation:sup .3s ease}
+    .bonus-lbl{font-size:.72rem;font-weight:700;color:var(--ok);letter-spacing:1px;margin-bottom:8px;text-transform:uppercase}
+    .bonus-q{font-size:.95rem;font-weight:700;color:var(--text);margin-bottom:12px}
+    .bonus-opts{display:flex;flex-wrap:wrap;gap:8px}
+    .bonus-opt{padding:8px 16px;border-radius:9px;border:1.5px solid var(--border);background:var(--surf);color:var(--text);font-size:.88rem;cursor:pointer;font-family:'Heebo',sans-serif;transition:all .18s}
+    .bonus-opt.ok{background:rgba(78,205,196,.15);border-color:var(--ok);color:var(--ok)}
+    .bonus-opt.bad{background:rgba(233,69,96,.13);border-color:var(--bad);color:var(--bad)}
+    .bonus-opt.dim{opacity:.3}
+    .bonus-result{margin-top:10px;font-size:.84rem;color:#999;line-height:1.6}
+    .nbar{position:fixed;bottom:62px;right:0;left:0;padding:13px 18px;background:var(--bg);border-top:1px solid var(--border)}
+    .nbtn{width:100%;padding:15px;border-radius:13px;border:none;color:#fff;font-family:'Frank Ruhl Libre',serif;font-size:1rem;font-weight:700;cursor:pointer;transition:all .18s}
+    .nbtn:active{transform:scale(.98)}
+    #p-res{background:radial-gradient(ellipse at 50% 0%,#1a0820 0%,var(--bg) 55%);align-items:center;overflow-y:auto;padding:60px 22px 80px}
+    .rcard{width:100%;max-width:380px;text-align:center}
+    .remo{font-size:3rem;margin-bottom:12px}
+    .rtitle{font-family:'Frank Ruhl Libre',serif;font-size:1.65rem;font-weight:900;margin-bottom:20px}
+    .sring{width:128px;height:128px;margin:0 auto 22px;position:relative}
+    .sring svg{transform:rotate(-90deg)}
+    .srtxt{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+    .srpct{font-family:'Frank Ruhl Libre',serif;font-size:2.1rem;font-weight:900;line-height:1}
+    .srlbl{font-size:.7rem;color:var(--dim)}
+    .bsec{width:100%;text-align:right;margin-bottom:26px}
+    .btitle{color:var(--dim);font-size:.76rem;letter-spacing:1px;margin-bottom:12px}
+    .brow{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+    .bcat{font-size:.8rem;font-weight:700;min-width:110px}
+    .bbar{flex:1;height:5px;background:var(--border);border-radius:5px;overflow:hidden}
+    .bfill{height:100%;border-radius:5px;transition:width 1s ease .25s}
+    .bsc{font-size:.76rem;color:var(--dim);min-width:28px;text-align:left}
+    .abtns{display:flex;flex-direction:column;gap:11px;width:100%}
+    .bp{background:linear-gradient(135deg,#e94560,#c0314d);color:#fff;border:none;border-radius:13px;padding:15px;font-family:'Frank Ruhl Libre',serif;font-size:.97rem;font-weight:700;cursor:pointer;box-shadow:0 5px 18px rgba(233,69,96,.28)}
+    .bs{background:var(--surf);color:var(--text);border:1px solid var(--border);border-radius:13px;padding:13px;font-family:'Heebo',sans-serif;font-size:.9rem;cursor:pointer}
+    .cgreat{color:var(--ok)}.cok{color:var(--speech)}.cbad{color:var(--bad)}
+    #p-guide{overflow-y:auto;padding-bottom:80px}
+    .guide-inner{padding:20px 18px}
+    .guide-title{font-family:'Frank Ruhl Libre',serif;font-size:1.5rem;font-weight:900;margin-bottom:6px}
+    .guide-sub{color:var(--dim);font-size:.85rem;margin-bottom:20px}
+    .gtabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:20px;scrollbar-width:none}
+    .gtabs::-webkit-scrollbar{display:none}
+    .gtab{padding:8px 18px;border-radius:20px;border:1px solid var(--border);background:var(--surf);color:var(--dim);font-size:.8rem;font-weight:700;cursor:pointer;white-space:nowrap;font-family:'Heebo',sans-serif;transition:all .18s;flex-shrink:0}
+    .gtab.on{color:#fff;border-color:transparent}
+    .gtab[data-t="binyan"].on{background:var(--binyan)}
+    .gtab[data-t="speech"].on{background:var(--speech)}
+    .gtab[data-t="nikud"].on{background:var(--nikud)}
+    .gtab[data-t="passive"].on{background:var(--passive)}
+    .gpanel{display:none}.gpanel.on{display:block}
+    .gcard{background:var(--surf);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:14px;position:relative;overflow:hidden}
+    .gcard::before{content:'';position:absolute;top:0;right:0;width:3px;height:100%;background:var(--gc)}
+    .gc-title{font-family:'Frank Ruhl Libre',serif;font-size:1.05rem;font-weight:700;margin-bottom:4px;color:var(--gc)}
+    .gc-sub{font-size:.78rem;color:var(--dim);margin-bottom:10px}
+    .gc-desc{font-size:.82rem;color:#aaa;line-height:1.65;margin-top:6px;border-top:1px solid var(--border);padding-top:8px}
+    .gc-ex{font-family:'Frank Ruhl Libre',serif;font-size:.9rem;color:var(--gc);margin-top:4px}
+    .ntable{width:100%;border-collapse:collapse;font-size:.82rem}
+    .ntable th{padding:7px 10px;text-align:right;color:var(--dim);border-bottom:1px solid var(--border);font-weight:600;font-size:.74rem;letter-spacing:.5px}
+    .ntable td{padding:8px 10px;border-bottom:1px solid #1a1a22}
+    .ntable tr:last-child td{border-bottom:none}
+    .ntable .sym{font-family:'Frank Ruhl Libre',serif;font-size:1.1rem;font-weight:700;color:var(--nikud)}
+    .ntable .nm-he{font-weight:700}.ntable .nm-en{color:var(--dim);font-size:.76rem}
+    .speech-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+    .sp-card{background:var(--surf2);border:1px solid var(--border);border-radius:11px;padding:12px}
+    .sp-he{font-family:'Frank Ruhl Libre',serif;font-size:.95rem;font-weight:700;color:var(--speech)}
+    .sp-en{font-size:.75rem;color:var(--dim);margin-bottom:5px}
+    .sp-q{font-size:.75rem;color:#aaa;line-height:1.5}
+    .ptable{width:100%;border-collapse:collapse;font-size:.82rem}
+    .ptable th{padding:7px 8px;color:var(--dim);border-bottom:1px solid var(--border);text-align:right;font-size:.72rem}
+    .ptable td{padding:8px;border-bottom:1px solid #1a1a22;vertical-align:top}
+    .ptable tr:last-child td{border-bottom:none}
+    .ptable .ph{font-family:'Frank Ruhl Libre',serif;font-size:.95rem;font-weight:700}
+    .ptable .pe{font-size:.75rem;color:var(--dim)}
+    .ptable .pd{font-size:.76rem;color:#aaa;line-height:1.5}
+  </style>
+</head>
+<body>
+<div class="topbar">
+  <div class="app-logo" id="logo-txt">🇮🇱 דקדוק עברי</div>
+  <div class="lang-tog">
+    <button class="lang-btn on" id="btn-he" onclick="setLang('he')">עב</button>
+    <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
+  </div>
+</div>
+<div class="botnav">
+  <button class="bnav-btn on" id="nav-home" onclick="navTo('home')"><span class="ico">🏠</span><span id="nav-home-lbl">בית</span></button>
+  <button class="bnav-btn" id="nav-guide" onclick="navTo('guide')"><span class="ico">📖</span><span id="nav-guide-lbl">מדריך</span></button>
+</div>
+<div id="p-home" class="page on">
+  <div class="hflag">🇮🇱</div>
+  <h1 class="htitle" id="home-title">דקדוק עברי</h1>
+  <p class="hsub" id="home-sub">תרגול אינטראקטיבי<br>בניינים · חלקי דיבור · ניקוד</p>
+  <div class="mode-label" id="mode-label">מצב תרגול</div>
+  <div class="mode-grid">
+    <div class="mode-card on" data-mode="he" onclick="setMode('he')"><div class="mode-ico">🇮🇱</div><div class="mode-name" id="mode-he-name">עברית</div><div class="mode-sub" id="mode-he-sub">בעברית בלבד</div></div>
+    <div class="mode-card" data-mode="en" onclick="setMode('en')"><div class="mode-ico">🇺🇸</div><div class="mode-name" id="mode-en-name">English</div><div class="mode-sub" id="mode-en-sub">English only</div></div>
+    <div class="mode-card" data-mode="mixed" onclick="setMode('mixed')"><div class="mode-ico">🔀</div><div class="mode-name" id="mode-mix-name">משולב</div><div class="mode-sub" id="mode-mix-sub">שתי השפות</div></div>
+  </div>
+  <div class="cat-label" id="cat-label">נושאים</div>
+  <div class="cgrid">
+    <div class="cc" style="--cc:#e94560"><div class="cc-icon">🔤</div><div class="cc-name" id="cat-binyan">בניינים</div><div class="cc-n">5 שאלות</div></div>
+    <div class="cc" style="--cc:#f5a623"><div class="cc-icon">🗣️</div><div class="cc-name" id="cat-speech">חלקי דיבור</div><div class="cc-n">4 שאלות</div></div>
+    <div class="cc" style="--cc:#0fb8a9"><div class="cc-icon">✦</div><div class="cc-name" id="cat-nikud">ניקוד</div><div class="cc-n">2 שאלות</div></div>
+    <div class="cc" style="--cc:#a855f7"><div class="cc-icon">⇄</div><div class="cc-name" id="cat-passive">פעיל / סביל</div><div class="cc-n">2 שאלות</div></div>
+  </div>
+  <button class="sbtn" id="start-btn" onclick="startQuiz()">התחל תרגול ▶</button>
+</div>
+<div id="p-quiz" class="page">
+  <div class="qhdr">
+    <div class="qtop">
+      <button class="xbtn" onclick="navTo('home')">✕</button>
+      <span class="cpill" id="q-pill"></span>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="qcnt" id="q-cnt"></span>
+        <label class="auto-speak-toggle"><input type="checkbox" id="auto-speak-chk" onchange="toggleAutoSpeak(this.checked)"/><span class="auto-speak-lbl">🔊</span></label>
+      </div>
+    </div>
+    <div class="ptrack"><div class="pfill" id="q-prog"></div></div>
+  </div>
+  <div class="qbody" id="q-body"></div>
+  <div class="nbar" id="nbar" style="display:none"><button class="nbtn" id="nbtn" onclick="nextQ()"></button></div>
+</div>
+<div id="p-res" class="page">
+  <div class="rcard">
+    <div class="remo" id="r-emo"></div>
+    <h2 class="rtitle" id="r-title"></h2>
+    <div class="sring">
+      <svg width="128" height="128" viewBox="0 0 128 128">
+        <circle cx="64" cy="64" r="54" fill="none" stroke="#1e1e2a" stroke-width="10"/>
+        <circle cx="64" cy="64" r="54" fill="none" stroke-width="10" stroke-linecap="round" id="r-ring" stroke-dasharray="339.3" stroke-dashoffset="339.3" style="transition:stroke-dashoffset 1s ease"/>
+      </svg>
+      <div class="srtxt"><div class="srpct" id="r-pct"></div><div class="srlbl" id="r-lbl">נכון</div></div>
+    </div>
+    <div class="bsec" id="r-bdown"></div>
+    <div class="abtns">
+      <button class="bp" id="r-again" onclick="startQuiz()">תרגל שוב 🔄</button>
+      <button class="bs" id="r-share" onclick="shareResult()">שתף את התוצאה 📤</button>
+      <button class="bs" id="r-home" onclick="navTo('home')">חזור לדף הבית</button>
+    </div>
+  </div>
+</div>
+<div id="p-guide" class="page">
+  <div class="guide-inner">
+    <h2 class="guide-title" id="guide-title">מדריך דקדוק</h2>
+    <p class="guide-sub" id="guide-sub">כל מה שלמדנו — במקום אחד</p>
+    <div class="gtabs">
+      <div class="gtab on" data-t="binyan" onclick="setGTab('binyan')"><span id="gt-binyan">בניינים</span></div>
+      <div class="gtab" data-t="speech" onclick="setGTab('speech')"><span id="gt-speech">חלקי דיבור</span></div>
+      <div class="gtab" data-t="nikud" onclick="setGTab('nikud')"><span id="gt-nikud">ניקוד</span></div>
+      <div class="gtab" data-t="passive" onclick="setGTab('passive')"><span id="gt-passive">פעיל / סביל</span></div>
+    </div>
+    <div class="gpanel on" id="gp-binyan"></div>
+    <div class="gpanel" id="gp-speech"></div>
+    <div class="gpanel" id="gp-nikud"></div>
+    <div class="gpanel" id="gp-passive"></div>
+  </div>
+</div>
+<script>
+
+const BINYANS=[
+  {he:"פָּעַל",en:"Pa'al (Qal)",type_he:"פעיל",type_en:"Active",desc_he:"הבניין הבסיסי. פעולה פשוטה ויומיומית.",desc_en:"The basic, most common verb form.",ex_he:"כָּתַב, הָלַך, אָכַל",ex_en:"katav (wrote), halakh (went)",col:"#e94560"},
+  {he:"נִפְעַל",en:"Nif'al",type_he:"סביל / חוזר",type_en:"Passive / Reflexive",desc_he:"הסביל של פָּעַל. הפעולה נעשית לנושא.",desc_en:"Passive of Pa'al. Action done to the subject.",ex_he:"נִכְתַּב, נִפְגַּשׁ",ex_en:"nikhtav (was written)",col:"#e94560"},
+  {he:"פִּעֵל",en:"Pi'el",type_he:"פעיל עצים",type_en:"Active intensive",desc_he:"פעולה עצימה או חוזרת. דגש בעיצור השני.",desc_en:"Intensive active. Doubled middle root letter.",ex_he:"לִמֵּד, דִּבֵּר, שִׁבֵּר",ex_en:"limed (taught), diber (spoke)",col:"#f5a623"},
+  {he:"פֻּעַל",en:"Pu'al",type_he:"סביל",type_en:"Passive",desc_he:"הסביל של פִּעֵל. קיבוץ תחת עיצור ראשון + דגש בשני.",desc_en:"Passive of Pi'el. Kubutz under first root letter.",ex_he:"סֻפַּר, לֻמַּד",ex_en:"supar (was told)",col:"#f5a623"},
+  {he:"הִפְעִיל",en:"Hif'il",type_he:"פעיל גורם",type_en:"Active causative",desc_he:"גרימה לאחר לעשות פעולה. מתחיל בהִ.",desc_en:"Causative active. Makes someone do something.",ex_he:"הִגִּישׁ, הִפְעִיל, הֶחְלִיט",ex_en:"higish (submitted)",col:"#0fb8a9"},
+  {he:"הֻפְעַל",en:"Huf'al",type_he:"סביל",type_en:"Passive",desc_he:"הסביל של הִפְעִיל. שורוק תחת ה׳ בראש — לא לבלבל עם פֻּעַל!",desc_en:"Passive of Hif'il. Shuruk under the He prefix.",ex_he:"הֻגְשׁ, הֻפְעַל",ex_en:"hugash (was submitted)",col:"#0fb8a9"},
+  {he:"הִתְפַּעֵל",en:"Hitpa'el",type_he:"חוזר",type_en:"Reflexive",desc_he:"הנושא עושה את הפעולה לעצמו. מתחיל בהִתְ.",desc_en:"Reflexive. Subject acts on itself.",ex_he:"הִתְלַבֵּשׁ, הִתְרַחֵץ",ex_en:"hitlavesh (got dressed)",col:"#a855f7"}
+];
+const SPEECH_PARTS=[
+  {he:"שֵׁם עֶצֶם",en:"Noun",q_he:"מי? מה?",q_en:"Who? What?",ex:"ספר, ילד, עיר"},
+  {he:"שֵׁם תֹּאַר",en:"Adjective",q_he:"איזה? איזו?",q_en:"Which? What kind?",ex:"גדול, יפה, חכם"},
+  {he:"פּוֹעֵל",en:"Verb",q_he:"מה עושה?",q_en:"What does (it) do?",ex:"הולך, אכל, ידע"},
+  {he:"תֹּאַר הַפֹּעַל",en:"Adverb",q_he:"איך? מתי? איפה?",q_en:"How? When? Where?",ex:"מהרה, מאוד, כבר"},
+  {he:"שֵׁם הַפֹּעַל",en:"Infinitive",q_he:"לעשות מה?",q_en:"To do what?",ex:"לכתוב, לאכול"},
+  {he:"מִילַּת יַחַס",en:"Preposition",q_he:"יחס בין שמות",q_en:"Relation between nouns",ex:"אֶל, עַל, בְּ, מִן, עִם"},
+  {he:"כִּינּוּי גּוּף",en:"Pronoun",q_he:"מחליף שם עצם",q_en:"Replaces a noun",ex:"אני, הוא, הם, זה"},
+  {he:"מִילַּת חִיבּוּר",en:"Conjunction",q_he:"מחבר מילים/משפטים",q_en:"Connects words/clauses",ex:"ו, אבל, כי, אם"}
+];
+const NIKUD=[
+  {sym:"ַ",name_he:"פַּתַח",name_en:"Patach",sound:"a (short)",ex_he:"כַּד",ex_en:"kad"},
+  {sym:"ָ",name_he:"קָמָץ",name_en:"Kamatz",sound:"a (long)",ex_he:"שָׁלוֹם",ex_en:"shalom"},
+  {sym:"ֶ",name_he:"סֶגּוֹל",name_en:"Segol",sound:"e (short)",ex_he:"מֶלֶך",ex_en:"melekh"},
+  {sym:"ֵ",name_he:"צֵירֵי",name_en:"Tzere",sound:"e (long)",ex_he:"שֵׁם",ex_en:"shem"},
+  {sym:"ִ",name_he:"חִירִיק",name_en:"Khirik",sound:"i",ex_he:"כִּי",ex_en:"ki"},
+  {sym:"ֹ",name_he:"חוֹלָם",name_en:"Kholam",sound:"o",ex_he:"שָׁלוֹם",ex_en:"shalom"},
+  {sym:"ֻ",name_he:"קֻבּוּץ",name_en:"Kubutz",sound:"u (short)",ex_he:"כֻּלָּם",ex_en:"kulam"},
+  {sym:"וּ",name_he:"שׁוּרוּק",name_en:"Shuruk",sound:"u (long)",ex_he:"שׁוּלְחָן",ex_en:"shulkhan"},
+  {sym:"ְ",name_he:"שְׁוָא",name_en:"Shva",sound:"silent/schwa",ex_he:"בְּרֵאשִׁית",ex_en:"bereishit"}
+];
+const PASSIVE_TABLE=[
+  {active_he:"פָּעַל",active_en:"Pa'al",passive_he:"נִפְעַל",passive_en:"Nif'al",desc_he:"הפועל הפשוט ← הסביל הבסיסי",desc_en:"Basic active → basic passive"},
+  {active_he:"פִּעֵל",active_en:"Pi'el",passive_he:"פֻּעַל",passive_en:"Pu'al",desc_he:"הפעיל העצים ← סביל עצים",desc_en:"Intensive active → intensive passive"},
+  {active_he:"הִפְעִיל",active_en:"Hif'il",passive_he:"הֻפְעַל",passive_en:"Huf'al",desc_he:"הגורם ← סביל גורם",desc_en:"Causative → causative passive"},
+  {active_he:"הִתְפַּעֵל",active_en:"Hitpa'el",passive_he:"—",passive_en:"—",desc_he:"חוזר — בדרך כלל ללא סביל",desc_en:"Reflexive — usually no passive form"}
+];
+
+// ══════════════════════════════════════════
+// QUESTION BANK — 100+ questions
+// ══════════════════════════════════════════
+const QS=[
+// ── פָּעַל ──
+{id:"b01",cat:"binyan",col:"#e94560",sent:{he:"הוא כָּתַב מכתב לחברו.",en:"He wrote a letter to his friend."},q:{he:"מהו הבניין של כָּתַב?",en:"Which binyan is 'katav' (wrote)?"},opts:{he:["פָּעַל","פִּעֵל","הִפְעִיל","נִפְעַל"],en:["Pa'al","Pi'el","Hif'il","Nif'al"]},ans:{he:"פָּעַל",en:"Pa'al"},exp:{he:"פָּעַל — הבניין הבסיסי. פעולה פשוטה.",en:"Pa'al — the basic active binyan."}},
+{id:"b02",cat:"binyan",col:"#e94560",sent:{he:"הילדה אָכְלָה את כל הפירות.",en:"The girl ate all the fruit."},q:{he:"מהו הבניין של אָכְלָה?",en:"Which binyan is 'akhla' (ate)?"},opts:{he:["פָּעַל","פִּעֵל","הִתְפַּעֵל","פֻּעַל"],en:["Pa'al","Pi'el","Hitpa'el","Pu'al"]},ans:{he:"פָּעַל",en:"Pa'al"},exp:{he:"אָכְלָה — פָּעַל. שורש א.כ.ל.",en:"Pa'al — root א.כ.ל, basic active."}},
+{id:"b03",cat:"binyan",col:"#e94560",sent:{he:"הם הָלְכוּ לשוק בבוקר.",en:"They walked to the market."},q:{he:"מהו הבניין של הָלְכוּ?",en:"Which binyan is 'halekhu' (walked)?"},opts:{he:["נִפְעַל","פָּעַל","הִפְעִיל","הִתְפַּעֵל"],en:["Nif'al","Pa'al","Hif'il","Hitpa'el"]},ans:{he:"פָּעַל",en:"Pa'al"},exp:{he:"הָלְכוּ — פָּעַל. הליכה = פעולה בסיסית.",en:"Pa'al — basic active. Walking is a simple Pa'al action."}},
+{id:"b04",cat:"binyan",col:"#e94560",sent:{he:"אני יָשַׁבְתִּי ליד החלון.",en:"I sat by the window."},q:{he:"מהו הבניין של יָשַׁבְתִּי?",en:"Which binyan is 'yashavti' (I sat)?"},opts:{he:["פָּעַל","פִּעֵל","הֻפְעַל","נִפְעַל"],en:["Pa'al","Pi'el","Huf'al","Nif'al"]},ans:{he:"פָּעַל",en:"Pa'al"},exp:{he:"יָשַׁבְתִּי — פָּעַל. שורש י.ש.ב.",en:"Pa'al — root י.ש.ב."}},
+{id:"b05",cat:"binyan",col:"#e94560",sent:{he:"היא שָׁמְעָה מוזיקה כל הערב.",en:"She listened to music all evening."},q:{he:"מהו הבניין של שָׁמְעָה?",en:"Which binyan is 'sham'a' (listened)?"},opts:{he:["פָּעַל","פִּעֵל","הִפְעִיל","פֻּעַל"],en:["Pa'al","Pi'el","Hif'il","Pu'al"]},ans:{he:"פָּעַל",en:"Pa'al"},exp:{he:"שָׁמְעָה — פָּעַל. שורש ש.מ.ע.",en:"Pa'al — root ש.מ.ע."}},
+{id:"b06",cat:"binyan",col:"#e94560",sent:{he:"הוא שָׁתָה מים אחרי הריצה.",en:"He drank water after the run."},q:{he:"מהו הבניין של שָׁתָה?",en:"Which binyan is 'shata' (drank)?"},opts:{he:["פָּעַל","פִּעֵל","הִתְפַּעֵל","הִפְעִיל"],en:["Pa'al","Pi'el","Hitpa'el","Hif'il"]},ans:{he:"פָּעַל",en:"Pa'al"},exp:{he:"שָׁתָה — פָּעַל ל״ה. שורש ש.ת.ה.",en:"Pa'al lamed-he — root ש.ת.ה."}},
+{id:"b07",cat:"binyan",col:"#e94560",sent:{he:"הם רָאוּ סרט מצוין.",en:"They saw an excellent movie."},q:{he:"מהו הבניין של רָאוּ?",en:"Which binyan is 'ra'u' (saw)?"},opts:{he:["פָּעַל","נִפְעַל","פִּעֵל","הִפְעִיל"],en:["Pa'al","Nif'al","Pi'el","Hif'il"]},ans:{he:"פָּעַל",en:"Pa'al"},exp:{he:"רָאוּ — פָּעַל. שורש ר.א.ה ל״ה.",en:"Pa'al — root ר.א.ה (lamed-he)."}},
+// ── נִפְעַל ──
+{id:"b08",cat:"binyan",col:"#e94560",sent:{he:"הספר נִכְתַּב על ידי סופר מפורסם.",en:"The book was written by a famous author."},q:{he:"מהו הבניין של נִכְתַּב?",en:"Which binyan is 'nikhtav' (was written)?"},opts:{he:["פָּעַל","נִפְעַל","פִּעֵל","הִפְעִיל"],en:["Pa'al","Nif'al","Pi'el","Hif'il"]},ans:{he:"נִפְעַל",en:"Nif'al"},exp:{he:"נִפְעַל — סביל של פָּעַל. הנ׳ בראש = סימן.",en:"Nif'al — passive of Pa'al. The נ prefix is the marker."}},
+{id:"b09",cat:"binyan",col:"#e94560",sent:{he:"הדלת נִפְתְּחָה לאט.",en:"The door opened slowly."},q:{he:"מהו הבניין של נִפְתְּחָה?",en:"Which binyan is 'niftekha' (opened)?"},opts:{he:["פָּעַל","פִּעֵל","נִפְעַל","הִתְפַּעֵל"],en:["Pa'al","Pi'el","Nif'al","Hitpa'el"]},ans:{he:"נִפְעַל",en:"Nif'al"},exp:{he:"נִפְתְּחָה — נִפְעַל. הדלת לא פתחה, היא נפתחה.",en:"Nif'al — the door didn't open something, it was opened."}},
+{id:"b10",cat:"binyan",col:"#e94560",sent:{he:"הם נִפְגְּשׁוּ בכיכר.",en:"They met in the square."},q:{he:"מהו הבניין של נִפְגְּשׁוּ?",en:"Which binyan is 'nifgeshu' (met)?"},opts:{he:["פָּעַל","נִפְעַל","פִּעֵל","הִפְעִיל"],en:["Pa'al","Nif'al","Pi'el","Hif'il"]},ans:{he:"נִפְעַל",en:"Nif'al"},exp:{he:"נִפְגְּשׁוּ — נִפְעַל. פגישה הדדית.",en:"Nif'al — reciprocal meeting."}},
+{id:"b11",cat:"binyan",col:"#e94560",sent:{he:"המכונה נִשְׁבְּרָה אתמול.",en:"The machine broke yesterday."},q:{he:"מהו הבניין של נִשְׁבְּרָה?",en:"Which binyan is 'nishbera' (broke)?"},opts:{he:["נִפְעַל","פֻּעַל","הֻפְעַל","פִּעֵל"],en:["Nif'al","Pu'al","Huf'al","Pi'el"]},ans:{he:"נִפְעַל",en:"Nif'al"},exp:{he:"נִשְׁבְּרָה — נִפְעַל. לא שברה — נשברה.",en:"Nif'al — it didn't break something, it got broken."}},
+{id:"b12",cat:"binyan",col:"#e94560",sent:{he:"השיר נִשְׁמַע מרחוק.",en:"The song was heard from afar."},q:{he:"מהו הבניין של נִשְׁמַע?",en:"Which binyan is 'nishma' (was heard)?"},opts:{he:["פָּעַל","נִפְעַל","הִפְעִיל","פֻּעַל"],en:["Pa'al","Nif'al","Hif'il","Pu'al"]},ans:{he:"נִפְעַל",en:"Nif'al"},exp:{he:"נִשְׁמַע — נִפְעַל. סביל של שָׁמַע.",en:"Nif'al — passive of shama (heard)."}},
+{id:"b13",cat:"binyan",col:"#e94560",sent:{he:"הוא נֶאֱסַר על ידי המשטרה.",en:"He was arrested by the police."},q:{he:"מהו הבניין של נֶאֱסַר?",en:"Which binyan is 'ne'esar' (was arrested)?"},opts:{he:["נִפְעַל","פֻּעַל","הֻפְעַל","פָּעַל"],en:["Nif'al","Pu'al","Huf'al","Pa'al"]},ans:{he:"נִפְעַל",en:"Nif'al"},exp:{he:"נֶאֱסַר — נִפְעַל. סביל של אָסַר.",en:"Nif'al — passive of 'asar' (to arrest)."}},
+// ── פִּעֵל ──
+{id:"b14",cat:"binyan",col:"#e94560",sent:{he:"המורה לִמְּדָה את התלמידים דקדוק.",en:"The teacher taught the students grammar."},q:{he:"מהו הבניין של לִמְּדָה?",en:"Which binyan is 'limda' (taught)?"},opts:{he:["פָּעַל","פִּעֵל","הִפְעִיל","הִתְפַּעֵל"],en:["Pa'al","Pi'el","Hif'il","Hitpa'el"]},ans:{he:"פִּעֵל",en:"Pi'el"},exp:{he:"פִּעֵל — פעולה עצימה. חיריק + דגש.",en:"Pi'el — intensive active. Khirik + dagesh."}},
+{id:"b15",cat:"binyan",col:"#e94560",sent:{he:"הוא דִּבֵּר בטלפון שעה שלמה.",en:"He spoke on the phone for a whole hour."},q:{he:"מהו הבניין של דִּבֵּר?",en:"Which binyan is 'diber' (spoke)?"},opts:{he:["פָּעַל","פִּעֵל","נִפְעַל","הִפְעִיל"],en:["Pa'al","Pi'el","Nif'al","Hif'il"]},ans:{he:"פִּעֵל",en:"Pi'el"},exp:{he:"דִּבֵּר — פִּעֵל. שורש ד.ב.ר עם דגש.",en:"Pi'el — root ד.ב.ר with dagesh."}},
+{id:"b16",cat:"binyan",col:"#e94560",sent:{he:"היא צִיְּרָה תמונה יפה.",en:"She drew a beautiful picture."},q:{he:"מהו הבניין של צִיְּרָה?",en:"Which binyan is 'tziyra' (drew)?"},opts:{he:["פָּעַל","פִּעֵל","הִפְעִיל","הִתְפַּעֵל"],en:["Pa'al","Pi'el","Hif'il","Hitpa'el"]},ans:{he:"פִּעֵל",en:"Pi'el"},exp:{he:"צִיְּרָה — פִּעֵל. שורש צ.י.ר.",en:"Pi'el — root צ.י.ר."}},
+{id:"b17",cat:"binyan",col:"#e94560",sent:{he:"הרופא בִּדֵּק את המטופל.",en:"The doctor examined the patient."},q:{he:"מהו הבניין של בִּדֵּק?",en:"Which binyan is 'bidek' (examined)?"},opts:{he:["פָּעַל","נִפְעַל","פִּעֵל","הֻפְעַל"],en:["Pa'al","Nif'al","Pi'el","Huf'al"]},ans:{he:"פִּעֵל",en:"Pi'el"},exp:{he:"בִּדֵּק — פִּעֵל. שורש ב.ד.ק.",en:"Pi'el — root ב.ד.ק."}},
+{id:"b18",cat:"binyan",col:"#e94560",sent:{he:"הוא סִפֵּר סיפור מעניין.",en:"He told an interesting story."},q:{he:"מהו הבניין של סִפֵּר?",en:"Which binyan is 'siper' (told)?"},opts:{he:["פָּעַל","פִּעֵל","הִפְעִיל","נִפְעַל"],en:["Pa'al","Pi'el","Hif'il","Nif'al"]},ans:{he:"פִּעֵל",en:"Pi'el"},exp:{he:"סִפֵּר — פִּעֵל. שורש ס.פ.ר עם דגש.",en:"Pi'el — root ס.פ.ר with dagesh."}},
+{id:"b19",cat:"binyan",col:"#e94560",sent:{he:"היא כִּיסְּתָה את הילד בשמיכה.",en:"She covered the child with a blanket."},q:{he:"מהו הבניין של כִּיסְּתָה?",en:"Which binyan is 'kiseta' (covered)?"},opts:{he:["פָּעַל","פִּעֵל","הִפְעִיל","הִתְפַּעֵל"],en:["Pa'al","Pi'el","Hif'il","Hitpa'el"]},ans:{he:"פִּעֵל",en:"Pi'el"},exp:{he:"כִּיסְּתָה — פִּעֵל ל״ה. שורש כ.ס.ה.",en:"Pi'el lamed-he — root כ.ס.ה."}},
+// ── פֻּעַל ──
+{id:"b20",cat:"binyan",col:"#e94560",sent:{he:"הסיפור סֻפַּר שוב ושוב.",en:"The story was told again and again."},q:{he:"מהו הבניין של סֻפַּר?",en:"Which binyan is 'supar' (was told)?"},opts:{he:["פֻּעַל","הֻפְעַל","נִפְעַל","פִּעֵל"],en:["Pu'al","Huf'al","Nif'al","Pi'el"]},ans:{he:"פֻּעַל",en:"Pu'al"},exp:{he:"פֻּעַל — סביל של פִּעֵל. קיבוץ + דגש.",en:"Pu'al — passive of Pi'el. Kubutz + dagesh."}},
+{id:"b21",cat:"binyan",col:"#e94560",sent:{he:"הכלב אֻמַּן להישמע לפקודות.",en:"The dog was trained to obey commands."},q:{he:"מהו הבניין של אֻמַּן?",en:"Which binyan is 'uman' (was trained)?"},opts:{he:["פֻּעַל","הֻפְעַל","נִפְעַל","פָּעַל"],en:["Pu'al","Huf'al","Nif'al","Pa'al"]},ans:{he:"פֻּעַל",en:"Pu'al"},exp:{he:"אֻמַּן — פֻּעַל. סביל של אִמֵּן (פִּעֵל).",en:"Pu'al — passive of 'imen' (Pi'el)."}},
+{id:"b22",cat:"binyan",col:"#e94560",sent:{he:"הדוח כֻּתַּב בידי הצוות.",en:"The report was written by the team."},q:{he:"מהו הבניין של כֻּתַּב?",en:"Which binyan is 'kutav' (was written)?"},opts:{he:["פֻּעַל","הֻפְעַל","נִפְעַל","פִּעֵל"],en:["Pu'al","Huf'al","Nif'al","Pi'el"]},ans:{he:"פֻּעַל",en:"Pu'al"},exp:{he:"כֻּתַּב — פֻּעַל. סביל של כִּתֵּב (פִּעֵל).",en:"Pu'al — passive of 'kitav' (Pi'el)."}},
+{id:"b23",cat:"binyan",col:"#e94560",sent:{he:"הפצע טֻפַּל בזהירות.",en:"The wound was treated carefully."},q:{he:"מהו הבניין של טֻפַּל?",en:"Which binyan is 'tupal' (was treated)?"},opts:{he:["פֻּעַל","הֻפְעַל","פִּעֵל","נִפְעַל"],en:["Pu'al","Huf'al","Pi'el","Nif'al"]},ans:{he:"פֻּעַל",en:"Pu'al"},exp:{he:"טֻפַּל — פֻּעַל. סביל של טִפֵּל (פִּעֵל).",en:"Pu'al — passive of 'tipel' (Pi'el)."}},
+{id:"b24",cat:"binyan",col:"#e94560",sent:{he:"הילד לֻמַּד בבית הספר.",en:"The child was taught at school."},q:{he:"מהו הבניין של לֻמַּד?",en:"Which binyan is 'lumad' (was taught)?"},opts:{he:["פֻּעַל","הֻפְעַל","נִפְעַל","פָּעַל"],en:["Pu'al","Huf'al","Nif'al","Pa'al"]},ans:{he:"פֻּעַל",en:"Pu'al"},exp:{he:"לֻמַּד — פֻּעַל. סביל של לִמֵּד (פִּעֵל).",en:"Pu'al — passive of 'limed' (Pi'el)."}},
+{id:"b25",cat:"binyan",col:"#e94560",sent:{he:"הספר תֻּרְגַּם לעשרים שפות.",en:"The book was translated into twenty languages."},q:{he:"מהו הבניין של תֻּרְגַּם?",en:"Which binyan is 'turgam' (was translated)?"},opts:{he:["פֻּעַל","הֻפְעַל","נִפְעַל","פָּעַל"],en:["Pu'al","Huf'al","Nif'al","Pa'al"]},ans:{he:"פֻּעַל",en:"Pu'al"},exp:{he:"תֻּרְגַּם — פֻּעַל. סביל של תִּרְגֵּם (פִּעֵל).",en:"Pu'al — passive of 'tiragem' (Pi'el — to translate)."}},
+// ── הִפְעִיל ──
+{id:"b26",cat:"binyan",col:"#e94560",sent:{he:"המורה הִסְבִּירָה את השיעור.",en:"The teacher explained the lesson."},q:{he:"מהו הבניין של הִסְבִּירָה?",en:"Which binyan is 'hisbira' (explained)?"},opts:{he:["פִּעֵל","הִפְעִיל","פָּעַל","הִתְפַּעֵל"],en:["Pi'el","Hif'il","Pa'al","Hitpa'el"]},ans:{he:"הִפְעִיל",en:"Hif'il"},exp:{he:"הִפְעִיל — פעיל גורם. מתחיל בהִ.",en:"Hif'il — causative active. Starts with הִ."}},
+{id:"b27",cat:"binyan",col:"#e94560",sent:{he:"הוא הִכְנִיס את המפתח לחור.",en:"He inserted the key into the hole."},q:{he:"מהו הבניין של הִכְנִיס?",en:"Which binyan is 'hikhnis' (inserted)?"},opts:{he:["פָּעַל","הִפְעִיל","פִּעֵל","נִפְעַל"],en:["Pa'al","Hif'il","Pi'el","Nif'al"]},ans:{he:"הִפְעִיל",en:"Hif'il"},exp:{he:"הִכְנִיס — הִפְעִיל. גרם לכניסה.",en:"Hif'il — caused something to enter."}},
+{id:"b28",cat:"binyan",col:"#e94560",sent:{he:"הם הֶחְלִיטוּ לנסוע לחו״ל.",en:"They decided to travel abroad."},q:{he:"מהו הבניין של הֶחְלִיטוּ?",en:"Which binyan is 'hekhlitu' (decided)?"},opts:{he:["פָּעַל","פִּעֵל","הִפְעִיל","הִתְפַּעֵל"],en:["Pa'al","Pi'el","Hif'il","Hitpa'el"]},ans:{he:"הִפְעִיל",en:"Hif'il"},exp:{he:"הֶחְלִיטוּ — הִפְעִיל. שורש ח.ל.ט.",en:"Hif'il — root ח.ל.ט."}},
+{id:"b29",cat:"binyan",col:"#e94560",sent:{he:"היא הִגִּישָׁה את הדוח בזמן.",en:"She submitted the report on time."},q:{he:"מהו הבניין של הִגִּישָׁה?",en:"Which binyan is 'higisha' (submitted)?"},opts:{he:["פִּעֵל","הִפְעִיל","נִפְעַל","פָּעַל"],en:["Pi'el","Hif'il","Nif'al","Pa'al"]},ans:{he:"הִפְעִיל",en:"Hif'il"},exp:{he:"הִגִּישָׁה — הִפְעִיל. שורש נ.ג.ש.",en:"Hif'il — root נ.ג.ש."}},
+{id:"b30",cat:"binyan",col:"#e94560",sent:{he:"הוא הוֹרִיד את המזוודה מהמדף.",en:"He took the suitcase down from the shelf."},q:{he:"מהו הבניין של הוֹרִיד?",en:"Which binyan is 'horid' (took down)?"},opts:{he:["פָּעַל","הִפְעִיל","פִּעֵל","פֻּעַל"],en:["Pa'al","Hif'il","Pi'el","Pu'al"]},ans:{he:"הִפְעִיל",en:"Hif'il"},exp:{he:"הוֹרִיד — הִפְעִיל. גרם לירידה.",en:"Hif'il — caused something to go down."}},
+{id:"b31",cat:"binyan",col:"#e94560",sent:{he:"הם הִצְלִיחוּ במבחן.",en:"They succeeded in the test."},q:{he:"מהו הבניין של הִצְלִיחוּ?",en:"Which binyan is 'hitzlikhu' (succeeded)?"},opts:{he:["פָּעַל","נִפְעַל","הִפְעִיל","פִּעֵל"],en:["Pa'al","Nif'al","Hif'il","Pi'el"]},ans:{he:"הִפְעִיל",en:"Hif'il"},exp:{he:"הִצְלִיחוּ — הִפְעִיל. שורש צ.ל.ח.",en:"Hif'il — root צ.ל.ח (to succeed)."}},
+// ── הֻפְעַל ──
+{id:"b32",cat:"binyan",col:"#e94560",sent:{he:"הדוח הֻגְשׁ לוועדה.",en:"The report was submitted to the committee."},q:{he:"מהו הבניין של הֻגְשׁ?",en:"Which binyan is 'hugash' (was submitted)?"},opts:{he:["פֻּעַל","הֻפְעַל","נִפְעַל","הִפְעִיל"],en:["Pu'al","Huf'al","Nif'al","Hif'il"]},ans:{he:"הֻפְעַל",en:"Huf'al"},exp:{he:"הֻפְעַל — סביל של הִפְעִיל. שורוק תחת ה׳!",en:"Huf'al — passive of Hif'il. Shuruk under ה!"}},
+{id:"b33",cat:"binyan",col:"#e94560",sent:{he:"הם הוּזְמְנוּ למסיבה.",en:"They were invited to the party."},q:{he:"מהו הבניין של הוּזְמְנוּ?",en:"Which binyan is 'huzimnu' (were invited)?"},opts:{he:["נִפְעַל","פֻּעַל","הֻפְעַל","הִפְעִיל"],en:["Nif'al","Pu'al","Huf'al","Hif'il"]},ans:{he:"הֻפְעַל",en:"Huf'al"},exp:{he:"הוּזְמְנוּ — הֻפְעַל. סביל של הִזְמִין.",en:"Huf'al — passive of 'hizmin' (Hif'il — to invite)."}},
+{id:"b34",cat:"binyan",col:"#e94560",sent:{he:"המידע הוּעְבַּר לצוות.",en:"The information was transferred to the team."},q:{he:"מהו הבניין של הוּעְבַּר?",en:"Which binyan is 'hu'var' (was transferred)?"},opts:{he:["פֻּעַל","הֻפְעַל","נִפְעַל","פִּעֵל"],en:["Pu'al","Huf'al","Nif'al","Pi'el"]},ans:{he:"הֻפְעַל",en:"Huf'al"},exp:{he:"הוּעְבַּר — הֻפְעַל. סביל של הֶעֱבִיר.",en:"Huf'al — passive of 'he'evir' (Hif'il)."}},
+{id:"b35",cat:"binyan",col:"#e94560",sent:{he:"הילד הוּכְנַס לכיתה.",en:"The child was brought into the classroom."},q:{he:"מהו הבניין של הוּכְנַס?",en:"Which binyan is 'hukhnas' (was brought in)?"},opts:{he:["נִפְעַל","הֻפְעַל","פֻּעַל","הִפְעִיל"],en:["Nif'al","Huf'al","Pu'al","Hif'il"]},ans:{he:"הֻפְעַל",en:"Huf'al"},exp:{he:"הוּכְנַס — הֻפְעַל. סביל של הִכְנִיס.",en:"Huf'al — passive of 'hikhnis' (Hif'il)."}},
+{id:"b36",cat:"binyan",col:"#e94560",sent:{he:"הספר הוּצְאָה מהמדף.",en:"The book was taken out from the shelf."},q:{he:"מהו הבניין של הוּצְאָה?",en:"Which binyan is 'huts'a' (was taken out)?"},opts:{he:["נִפְעַל","פֻּעַל","הֻפְעַל","פָּעַל"],en:["Nif'al","Pu'al","Huf'al","Pa'al"]},ans:{he:"הֻפְעַל",en:"Huf'al"},exp:{he:"הוּצְאָה — הֻפְעַל. סביל של הוֹצִיא.",en:"Huf'al — passive of 'hotsi' (Hif'il)."}},
+// ── הִתְפַּעֵל ──
+{id:"b37",cat:"binyan",col:"#e94560",sent:{he:"הילד הִתְלַבֵּשׁ לבד בבוקר.",en:"The child got dressed by himself."},q:{he:"מהו הבניין של הִתְלַבֵּשׁ?",en:"Which binyan is 'hitlavesh' (got dressed)?"},opts:{he:["פִּעֵל","הִפְעִיל","הִתְפַּעֵל","פֻּעַל"],en:["Pi'el","Hif'il","Hitpa'el","Pu'al"]},ans:{he:"הִתְפַּעֵל",en:"Hitpa'el"},exp:{he:"הִתְפַּעֵל — חוזר. הנושא עושה לעצמו.",en:"Hitpa'el — reflexive. Subject acts on itself."}},
+{id:"b38",cat:"binyan",col:"#e94560",sent:{he:"היא הִתְרַחֲצָה לפני השינה.",en:"She washed up before going to sleep."},q:{he:"מהו הבניין של הִתְרַחֲצָה?",en:"Which binyan is 'hitrakhatza' (washed up)?"},opts:{he:["פִּעֵל","הִתְפַּעֵל","הִפְעִיל","נִפְעַל"],en:["Pi'el","Hitpa'el","Hif'il","Nif'al"]},ans:{he:"הִתְפַּעֵל",en:"Hitpa'el"},exp:{he:"הִתְרַחֲצָה — הִתְפַּעֵל. רחצה את עצמה.",en:"Hitpa'el — she washed herself."}},
+{id:"b39",cat:"binyan",col:"#e94560",sent:{he:"הוא הִתְנַהֵג בצורה יפה.",en:"He behaved nicely."},q:{he:"מהו הבניין של הִתְנַהֵג?",en:"Which binyan is 'hitnaheg' (behaved)?"},opts:{he:["פָּעַל","פִּעֵל","הִפְעִיל","הִתְפַּעֵל"],en:["Pa'al","Pi'el","Hif'il","Hitpa'el"]},ans:{he:"הִתְפַּעֵל",en:"Hitpa'el"},exp:{he:"הִתְנַהֵג — הִתְפַּעֵל. התנהגות חוזרת.",en:"Hitpa'el — reflexive behavioral verb."}},
+{id:"b40",cat:"binyan",col:"#e94560",sent:{he:"הם הִתְכַּנְּסוּ באולם.",en:"They gathered in the hall."},q:{he:"מהו הבניין של הִתְכַּנְּסוּ?",en:"Which binyan is 'hitkanesu' (gathered)?"},opts:{he:["נִפְעַל","פִּעֵל","הִתְפַּעֵל","הִפְעִיל"],en:["Nif'al","Pi'el","Hitpa'el","Hif'il"]},ans:{he:"הִתְפַּעֵל",en:"Hitpa'el"},exp:{he:"הִתְכַּנְּסוּ — הִתְפַּעֵל. כינוס הדדי.",en:"Hitpa'el — reciprocal gathering."}},
+{id:"b41",cat:"binyan",col:"#e94560",sent:{he:"היא הִתְחִילָה ללמוד עברית.",en:"She started learning Hebrew."},q:{he:"מהו הבניין של הִתְחִילָה?",en:"Which binyan is 'hitchila' (started)?"},opts:{he:["פָּעַל","נִפְעַל","הִתְפַּעֵל","הִפְעִיל"],en:["Pa'al","Nif'al","Hitpa'el","Hif'il"]},ans:{he:"הִתְפַּעֵל",en:"Hitpa'el"},exp:{he:"הִתְחִילָה — הִתְפַּעֵל. שורש ח.ל.ל.",en:"Hitpa'el — root ח.ל.ל."}},
+{id:"b42",cat:"binyan",col:"#e94560",sent:{he:"הוא הִתְקַשֵּׁר אל חברו.",en:"He called/connected with his friend."},q:{he:"מהו הבניין של הִתְקַשֵּׁר?",en:"Which binyan is 'hitkasher' (called/connected)?"},opts:{he:["פִּעֵל","הִפְעִיל","הִתְפַּעֵל","נִפְעַל"],en:["Pi'el","Hif'il","Hitpa'el","Nif'al"]},ans:{he:"הִתְפַּעֵל",en:"Hitpa'el"},exp:{he:"הִתְקַשֵּׁר — הִתְפַּעֵל. שורש ק.ש.ר.",en:"Hitpa'el — root ק.ש.ר (to connect/call)."}},
+// ── ל״ה ──
+{id:"b43",cat:"binyan",col:"#e94560",sent:{he:"הוא בָּנָה בית חדש.",en:"He built a new house."},q:{he:"מהו הבניין של בָּנָה? (שורש ל״ה: ב.נ.ה)",en:"Which binyan is 'bana' (built)? (lamed-he root)"},opts:{he:["פָּעַל","פִּעֵל","הִפְעִיל","נִפְעַל"],en:["Pa'al","Pi'el","Hif'il","Nif'al"]},ans:{he:"פָּעַל",en:"Pa'al"},exp:{he:"בָּנָה — פָּעַל ל״ה. השורש מסתיים בה׳.",en:"Pa'al with lamed-he root ב.נ.ה."}},
+{id:"b44",cat:"binyan",col:"#e94560",sent:{he:"היא קָנְתָה ספרים חדשים.",en:"She bought new books."},q:{he:"מהו הבניין של קָנְתָה? (שורש ל״ה: ק.נ.ה)",en:"Which binyan is 'kanta' (bought)? (lamed-he root)"},opts:{he:["פָּעַל","פִּעֵל","הִפְעִיל","פֻּעַל"],en:["Pa'al","Pi'el","Hif'il","Pu'al"]},ans:{he:"פָּעַל",en:"Pa'al"},exp:{he:"קָנְתָה — פָּעַל ל״ה. שורש ק.נ.ה.",en:"Pa'al lamed-he — root ק.נ.ה."}},
+{id:"b45",cat:"binyan",col:"#e94560",sent:{he:"הם עָלוּ להר הגבוה.",en:"They climbed the tall mountain."},q:{he:"מהו הבניין של עָלוּ? (שורש ל״ה: ע.ל.ה)",en:"Which binyan is 'alu' (went up)? (lamed-he root)"},opts:{he:["פָּעַל","נִפְעַל","הִפְעִיל","הִתְפַּעֵל"],en:["Pa'al","Nif'al","Hif'il","Hitpa'el"]},ans:{he:"פָּעַל",en:"Pa'al"},exp:{he:"עָלוּ — פָּעַל ל״ה. שורש ע.ל.ה.",en:"Pa'al lamed-he — root ע.ל.ה."}},
+{id:"b46",cat:"binyan",col:"#e94560",sent:{he:"הוא גִּלָּה את הסוד.",en:"He revealed the secret."},q:{he:"מהו הבניין של גִּלָּה? (שורש ל״ה: ג.ל.ה)",en:"Which binyan is 'gila' (revealed)? (lamed-he root)"},opts:{he:["פָּעַל","פִּעֵל","הִפְעִיל","הִתְפַּעֵל"],en:["Pa'al","Pi'el","Hif'il","Hitpa'el"]},ans:{he:"פִּעֵל",en:"Pi'el"},exp:{he:"גִּלָּה — פִּעֵל ל״ה. דגש + חיריק.",en:"Pi'el lamed-he — root ג.ל.ה."}},
+{id:"b47",cat:"binyan",col:"#e94560",sent:{he:"היא סִיְּמָה את הספר.",en:"She finished the book."},q:{he:"מהו הבניין של סִיְּמָה? (שורש ל״ה: ס.י.מ)",en:"Which binyan is 'siyma' (finished)?"},opts:{he:["פָּעַל","פִּעֵל","הִפְעִיל","נִפְעַל"],en:["Pa'al","Pi'el","Hif'il","Nif'al"]},ans:{he:"פִּעֵל",en:"Pi'el"},exp:{he:"סִיְּמָה — פִּעֵל ל״ה. כמו: כִּיסָּה, נִיקָּה.",en:"Pi'el lamed-he. Like: kisa (covered), nika (cleaned)."}},
+{id:"b48",cat:"binyan",col:"#e94560",sent:{he:"הם הִגִּיעוּ מאוחר.",en:"They arrived late."},q:{he:"מהו הבניין של הִגִּיעוּ? (שורש: נ.ג.ע)",en:"Which binyan is 'higiyu' (arrived)?"},opts:{he:["פָּעַל","פִּעֵל","הִפְעִיל","הִתְפַּעֵל"],en:["Pa'al","Pi'el","Hif'il","Hitpa'el"]},ans:{he:"הִפְעִיל",en:"Hif'il"},exp:{he:"הִגִּיעוּ — הִפְעִיל. שורש נ.ג.ע.",en:"Hif'il — root נ.ג.ע."}},
+{id:"b49",cat:"binyan",col:"#e94560",sent:{he:"הוא שָׁתָה קפה כל בוקר.",en:"He drank coffee every morning."},q:{he:"מהו הבניין של שָׁתָה? (שורש ל״ה: ש.ת.ה)",en:"Which binyan is 'shata' (drank)? (lamed-he)"},opts:{he:["פָּעַל","פִּעֵל","נִפְעַל","הִפְעִיל"],en:["Pa'al","Pi'el","Nif'al","Hif'il"]},ans:{he:"פָּעַל",en:"Pa'al"},exp:{he:"שָׁתָה — פָּעַל ל״ה. שורש ש.ת.ה.",en:"Pa'al lamed-he — root ש.ת.ה."}},
+// ── חלקי דיבור — שם עצם ──
+{id:"s01",cat:"speech",col:"#f5a623",isSpeech:true,sent:{he:"הַכֶּלֶב רץ בגן.",en:"The dog ran in the park."},q:{he:"מהו חלק הדיבור של כֶּלֶב?",en:"What part of speech is 'kelev' (dog)?"},opts:{he:["שם עצם","שם תואר","פועל","תואר הפועל"],en:["Noun","Adjective","Verb","Adverb"]},ans:{he:"שם עצם",en:"Noun"},exp:{he:"שם עצם — מי? מה? הכלב הוא שם עצם.",en:"Noun — answers 'who?' or 'what?'. Dog is a noun."},bonus:{q:{he:"ומה זה 'שם עצם' באנגלית?",en:""},ans:"Noun",opts:["Noun","Adjective","Verb","Adverb"],exp:{he:"שם עצם = Noun",en:""}}},
+{id:"s02",cat:"speech",col:"#f5a623",isSpeech:true,sent:{he:"אכלתי תפוח טעים.",en:"I ate a tasty apple."},q:{he:"מהו חלק הדיבור של תַּפּוּחַ?",en:"What part of speech is 'tapuakh' (apple)?"},opts:{he:["שם תואר","שם עצם","פועל","מילת יחס"],en:["Adjective","Noun","Verb","Preposition"]},ans:{he:"שם עצם",en:"Noun"},exp:{he:"תַּפּוּחַ — שם עצם. דבר שאפשר לגעת בו.",en:"Noun — a concrete thing you can touch."},bonus:{q:{he:"ומה זה 'שם עצם' באנגלית?",en:""},ans:"Noun",opts:["Adjective","Noun","Verb","Preposition"],exp:{he:"שם עצם = Noun",en:""}}},
+{id:"s03",cat:"speech",col:"#f5a623",isSpeech:true,sent:{he:"הָעִיר גדולה ומודרנית.",en:"The city is large and modern."},q:{he:"מהו חלק הדיבור של עִיר?",en:"What part of speech is 'ir' (city)?"},opts:{he:["שם עצם","שם תואר","תואר הפועל","מילת חיבור"],en:["Noun","Adjective","Adverb","Conjunction"]},ans:{he:"שם עצם",en:"Noun"},exp:{he:"עִיר — שם עצם. מקום = שם עצם.",en:"Noun — a place is a noun."},bonus:{q:{he:"ומה זה 'שם עצם' באנגלית?",en:""},ans:"Noun",opts:["Noun","Adjective","Adverb","Conjunction"],exp:{he:"שם עצם = Noun",en:""}}},
+// ── חלקי דיבור — פועל ──
+{id:"s04",cat:"speech",col:"#f5a623",isSpeech:true,sent:{he:"הוא רָץ לתפוס את האוטובוס.",en:"He ran to catch the bus."},q:{he:"מהו חלק הדיבור של רָץ?",en:"What part of speech is 'rats' (ran)?"},opts:{he:["שם עצם","שם תואר","פועל","מילת יחס"],en:["Noun","Adjective","Verb","Preposition"]},ans:{he:"פועל",en:"Verb"},exp:{he:"פועל — מה עושה? הוא רץ = פעולה.",en:"Verb — answers 'what does he do?' Running is a verb."},bonus:{q:{he:"ומה זה 'פועל' באנגלית?",en:""},ans:"Verb",opts:["Noun","Adjective","Verb","Preposition"],exp:{he:"פועל = Verb",en:""}}},
+{id:"s05",cat:"speech",col:"#f5a623",isSpeech:true,sent:{he:"הילדים שִׂחֲקוּ בגן.",en:"The children played in the yard."},q:{he:"מהו חלק הדיבור של שִׂחֲקוּ?",en:"What part of speech is 'sikhku' (played)?"},opts:{he:["שם עצם","שם תואר","פועל","תואר הפועל"],en:["Noun","Adjective","Verb","Adverb"]},ans:{he:"פועל",en:"Verb"},exp:{he:"שִׂחֲקוּ — פועל. פעולה שעשו הילדים.",en:"Verb — an action performed by the children."},bonus:{q:{he:"ומה זה 'פועל' באנגלית?",en:""},ans:"Verb",opts:["Noun","Adjective","Verb","Adverb"],exp:{he:"פועל = Verb",en:""}}},
+{id:"s06",cat:"speech",col:"#f5a623",isSpeech:true,sent:{he:"היא אָהֲבָה מוזיקה.",en:"She loved music."},q:{he:"מהו חלק הדיבור של אָהֲבָה?",en:"What part of speech is 'ahava' (loved)?"},opts:{he:["שם עצם","פועל","שם תואר","מילת יחס"],en:["Noun","Verb","Adjective","Preposition"]},ans:{he:"פועל",en:"Verb"},exp:{he:"אָהֲבָה — פועל. מצב / פעולה רגשית.",en:"Verb — an emotional action/state."},bonus:{q:{he:"ומה זה 'פועל' באנגלית?",en:""},ans:"Verb",opts:["Noun","Verb","Adjective","Preposition"],exp:{he:"פועל = Verb",en:""}}},
+// ── חלקי דיבור — שם הפועל ──
+{id:"s07",cat:"speech",col:"#f5a623",isSpeech:true,sent:{he:"לִישֹׁן מוקדם זה בריא.",en:"Sleeping early is healthy."},q:{he:"מהו חלק הדיבור של לִישֹׁן?",en:"What part of speech is 'lishon' (to sleep)?"},opts:{he:["פועל","שם הפועל","שם עצם","תואר הפועל"],en:["Verb","Infinitive","Noun","Adverb"]},ans:{he:"שם הפועל",en:"Infinitive"},exp:{he:"שם הפועל — צורת ה'לְ'. לִישֹׁן = to sleep.",en:"Infinitive — the 'to' form. Lishon = to sleep."},bonus:{q:{he:"ומה זה 'שם הפועל' באנגלית?",en:""},ans:"Infinitive",opts:["Verb","Infinitive","Noun","Adverb"],exp:{he:"שם הפועל = Infinitive",en:""}}},
+{id:"s08",cat:"speech",col:"#f5a623",isSpeech:true,sent:{he:"הוא אוהב לִרְקֹד.",en:"He loves to dance."},q:{he:"מהו חלק הדיבור של לִרְקֹד?",en:"What part of speech is 'lirqod' (to dance)?"},opts:{he:["פועל","שם תואר","שם הפועל","מילת יחס"],en:["Verb","Adjective","Infinitive","Preposition"]},ans:{he:"שם הפועל",en:"Infinitive"},exp:{he:"לִרְקֹד — שם הפועל. מתחיל ב'לְ'.",en:"Infinitive — starts with 'l' prefix (to)."},bonus:{q:{he:"ומה זה 'שם הפועל' באנגלית?",en:""},ans:"Infinitive",opts:["Verb","Adjective","Infinitive","Preposition"],exp:{he:"שם הפועל = Infinitive",en:""}}},
+{id:"s09",cat:"speech",col:"#f5a623",isSpeech:true,sent:{he:"אני רוצה לֶאֱכֹל פיצה.",en:"I want to eat pizza."},q:{he:"מהו חלק הדיבור של לֶאֱכֹל?",en:"What part of speech is 'le'ekhol' (to eat)?"},opts:{he:["שם עצם","פועל","שם הפועל","כינוי גוף"],en:["Noun","Verb","Infinitive","Pronoun"]},ans:{he:"שם הפועל",en:"Infinitive"},exp:{he:"לֶאֱכֹל — שם הפועל = to eat.",en:"Infinitive — 'to eat'."},bonus:{q:{he:"ומה זה 'שם הפועל' באנגלית?",en:""},ans:"Infinitive",opts:["Noun","Verb","Infinitive","Pronoun"],exp:{he:"שם הפועל = Infinitive",en:""}}},
+// ── חלקי דיבור — כינוי גוף ──
+{id:"s10",cat:"speech",col:"#f5a623",isSpeech:true,sent:{he:"אֲנִי אוהב קפה.",en:"I love coffee."},q:{he:"מהו חלק הדיבור של אֲנִי?",en:"What part of speech is 'ani' (I)?"},opts:{he:["שם עצם","כינוי גוף","מילת יחס","שם תואר"],en:["Noun","Pronoun","Preposition","Adjective"]},ans:{he:"כינוי גוף",en:"Pronoun"},exp:{he:"כינוי גוף — מחליף שם עצם. אֲנִי = the speaker.",en:"Pronoun — replaces a noun. 'I' refers to the speaker."},bonus:{q:{he:"ומה זה 'כינוי גוף' באנגלית?",en:""},ans:"Pronoun",opts:["Noun","Pronoun","Preposition","Adjective"],exp:{he:"כינוי גוף = Pronoun",en:""}}},
+{id:"s11",cat:"speech",col:"#f5a623",isSpeech:true,sent:{he:"הוּא הלך לבית הספר.",en:"He went to school."},q:{he:"מהו חלק הדיבור של הוּא?",en:"What part of speech is 'hu' (he)?"},opts:{he:["שם עצם","פועל","כינוי גוף","שם תואר"],en:["Noun","Verb","Pronoun","Adjective"]},ans:{he:"כינוי גוף",en:"Pronoun"},exp:{he:"הוּא — כינוי גוף גוף שלישי יחיד זכר.",en:"Pronoun — 3rd person singular masculine."},bonus:{q:{he:"ומה זה 'כינוי גוף' באנגלית?",en:""},ans:"Pronoun",opts:["Noun","Verb","Pronoun","Adjective"],exp:{he:"כינוי גוף = Pronoun",en:""}}},
+{id:"s12",cat:"speech",col:"#f5a623",isSpeech:true,sent:{he:"הֵם הגיעו מאוחר.",en:"They arrived late."},q:{he:"מהו חלק הדיבור של הֵם?",en:"What part of speech is 'hem' (they)?"},opts:{he:["שם עצם","כינוי גוף","מילת חיבור","תואר הפועל"],en:["Noun","Pronoun","Conjunction","Adverb"]},ans:{he:"כינוי גוף",en:"Pronoun"},exp:{he:"הֵם — כינוי גוף ריבוי.",en:"Pronoun — plural third person."},bonus:{q:{he:"ומה זה 'כינוי גוף' באנגלית?",en:""},ans:"Pronoun",opts:["Noun","Pronoun","Conjunction","Adverb"],exp:{he:"כינוי גוף = Pronoun",en:""}}},
+// ── חלקי דיבור — תואר הפועל ──
+{id:"s13",cat:"speech",col:"#f5a623",isSpeech:true,sent:{he:"הוא רץ מַהֵר לתפוס את האוטובוס.",en:"He ran fast to catch the bus."},q:{he:"מהו חלק הדיבור של מַהֵר?",en:"What part of speech is 'maher' (fast)?"},opts:{he:["שם תואר","תואר הפועל","מילת יחס","שם עצם"],en:["Adjective","Adverb","Preposition","Noun"]},ans:{he:"תואר הפועל",en:"Adverb"},exp:{he:"תואר הפועל — מתאר פועל. איך רץ? מהר.",en:"Adverb — modifies a verb. How did he run? Fast."},bonus:{q:{he:"ומה זה 'תואר הפועל' באנגלית?",en:""},ans:"Adverb",opts:["Adjective","Adverb","Preposition","Noun"],exp:{he:"תואר הפועל = Adverb",en:""}}},
+{id:"s14",cat:"speech",col:"#f5a623",isSpeech:true,sent:{he:"היא שרה יָפֶה מאוד.",en:"She sang very beautifully."},q:{he:"מהו חלק הדיבור של יָפֶה (כאן)?",en:"What part of speech is 'yafe' (beautifully) here?"},opts:{he:["שם תואר","תואר הפועל","מילת חיבור","כינוי גוף"],en:["Adjective","Adverb","Conjunction","Pronoun"]},ans:{he:"תואר הפועל",en:"Adverb"},exp:{he:"יָפֶה כאן מתאר את שרה — תואר הפועל.",en:"Adverb — 'beautifully' modifies the verb 'sang'."},bonus:{q:{he:"ומה זה 'תואר הפועל' באנגלית?",en:""},ans:"Adverb",opts:["Adjective","Adverb","Preposition","Noun"],exp:{he:"תואר הפועל = Adverb",en:""}}},
+{id:"s15",cat:"speech",col:"#f5a623",isSpeech:true,sent:{he:"הם הגיעו אֶתְמוֹל בלילה.",en:"They arrived yesterday at night."},q:{he:"מהו חלק הדיבור של אֶתְמוֹל?",en:"What part of speech is 'etmol' (yesterday)?"},opts:{he:["שם עצם","תואר הפועל","מילת יחס","שם תואר"],en:["Noun","Adverb","Preposition","Adjective"]},ans:{he:"תואר הפועל",en:"Adverb"},exp:{he:"אֶתְמוֹל מתאר מתי — תואר הפועל של זמן.",en:"Adverb of time — answers 'when?'"},bonus:{q:{he:"ומה זה 'תואר הפועל' באנגלית?",en:""},ans:"Adverb",opts:["Noun","Adverb","Preposition","Adjective"],exp:{he:"תואר הפועל = Adverb",en:""}}},
+// ── חלקי דיבור — מילת יחס ──
+{id:"s16",cat:"speech",col:"#f5a623",isSpeech:true,sent:{he:"הוא הלך אֶל הספרייה.",en:"He walked to the library."},q:{he:"מהו חלק הדיבור של אֶל?",en:"What part of speech is 'el' (to/toward)?"},opts:{he:["תואר הפועל","מילת חיבור","מילת יחס","כינוי גוף"],en:["Adverb","Conjunction","Preposition","Pronoun"]},ans:{he:"מילת יחס",en:"Preposition"},exp:{he:"מילת יחס — מביעה יחס. אֶל = כיוון.",en:"Preposition — shows direction/relation."},bonus:{q:{he:"ומה זה 'מילת יחס' באנגלית?",en:""},ans:"Preposition",opts:["Adverb","Conjunction","Preposition","Pronoun"],exp:{he:"מילת יחס = Preposition",en:""}}},
+{id:"s17",cat:"speech",col:"#f5a623",isSpeech:true,sent:{he:"הספר נמצא עַל הכיסא.",en:"The book is on the chair."},q:{he:"מהו חלק הדיבור של עַל?",en:"What part of speech is 'al' (on)?"},opts:{he:["תואר הפועל","שם תואר","מילת יחס","מילת חיבור"],en:["Adverb","Adjective","Preposition","Conjunction"]},ans:{he:"מילת יחס",en:"Preposition"},exp:{he:"עַל — מילת יחס של מיקום.",en:"Preposition of location."},bonus:{q:{he:"ומה זה 'מילת יחס' באנגלית?",en:""},ans:"Preposition",opts:["Adverb","Adjective","Preposition","Conjunction"],exp:{he:"מילת יחס = Preposition",en:""}}},
+{id:"s18",cat:"speech",col:"#f5a623",isSpeech:true,sent:{he:"הם נסעו מִירוּשָׁלַיִם לתל אביב.",en:"They traveled from Jerusalem to Tel Aviv."},q:{he:"מהו חלק הדיבור של מִן (מִ)?",en:"What part of speech is 'min' (from)?"},opts:{he:["תואר הפועל","מילת יחס","מילת חיבור","כינוי גוף"],en:["Adverb","Preposition","Conjunction","Pronoun"]},ans:{he:"מילת יחס",en:"Preposition"},exp:{he:"מִן — מילת יחס של מקור. מאיפה?",en:"Preposition of origin — 'from'."},bonus:{q:{he:"ומה זה 'מילת יחס' באנגלית?",en:""},ans:"Preposition",opts:["Adverb","Preposition","Conjunction","Pronoun"],exp:{he:"מילת יחס = Preposition",en:""}}},
+// ── חלקי דיבור — שם תואר ──
+{id:"s19",cat:"speech",col:"#f5a623",isSpeech:true,sent:{he:"הכלב הגדול ישן על הספה.",en:"The big dog is sleeping on the sofa."},q:{he:"מהו חלק הדיבור של גָּדוֹל?",en:"What part of speech is 'gadol' (big)?"},opts:{he:["שם עצם","שם תואר","תואר הפועל","פועל"],en:["Noun","Adjective","Adverb","Verb"]},ans:{he:"שם תואר",en:"Adjective"},exp:{he:"שם תואר מתאר שם עצם. איזה כלב? גדול.",en:"Adjective describes a noun. What kind of dog? Big."},bonus:{q:{he:"ומה זה 'שם תואר' באנגלית?",en:""},ans:"Adjective",opts:["Noun","Adjective","Adverb","Verb"],exp:{he:"שם תואר = Adjective",en:""}}},
+{id:"s20",cat:"speech",col:"#f5a623",isSpeech:true,sent:{he:"אכלתי ארוחה טְעִימָה.",en:"I ate a delicious meal."},q:{he:"מהו חלק הדיבור של טְעִימָה?",en:"What part of speech is 'te'ima' (delicious)?"},opts:{he:["שם עצם","פועל","שם תואר","תואר הפועל"],en:["Noun","Verb","Adjective","Adverb"]},ans:{he:"שם תואר",en:"Adjective"},exp:{he:"טְעִימָה מתארת את הארוחה — שם תואר.",en:"Adjective — 'delicious' describes 'meal'."},bonus:{q:{he:"ומה זה 'שם תואר' באנגלית?",en:""},ans:"Adjective",opts:["Noun","Verb","Adjective","Adverb"],exp:{he:"שם תואר = Adjective",en:""}}},
+// ── חלקי דיבור — מילת חיבור ──
+{id:"s21",cat:"speech",col:"#f5a623",isSpeech:true,sent:{he:"אני אוהב קפה וּגְבִינָה.",en:"I love coffee and cheese."},q:{he:"מהו חלק הדיבור של וּ?",en:"What part of speech is 'u' (and)?"},opts:{he:["מילת יחס","מילת חיבור","כינוי גוף","תואר הפועל"],en:["Preposition","Conjunction","Pronoun","Adverb"]},ans:{he:"מילת חיבור",en:"Conjunction"},exp:{he:"מילת חיבור — מחברת מילים. ו = and.",en:"Conjunction — connects words."},bonus:{q:{he:"ומה זה 'מילת חיבור' באנגלית?",en:""},ans:"Conjunction",opts:["Preposition","Conjunction","Pronoun","Adverb"],exp:{he:"מילת חיבור = Conjunction",en:""}}},
+{id:"s22",cat:"speech",col:"#f5a623",isSpeech:true,sent:{he:"הלכתי לחנות אֲבָל היא הייתה סגורה.",en:"I went to the store but it was closed."},q:{he:"מהו חלק הדיבור של אֲבָל?",en:"What part of speech is 'aval' (but)?"},opts:{he:["מילת יחס","תואר הפועל","מילת חיבור","שם עצם"],en:["Preposition","Adverb","Conjunction","Noun"]},ans:{he:"מילת חיבור",en:"Conjunction"},exp:{he:"אֲבָל מחברת שני משפטים — מילת חיבור.",en:"Conjunction — 'but' connects two clauses."},bonus:{q:{he:"ומה זה 'מילת חיבור' באנגלית?",en:""},ans:"Conjunction",opts:["Preposition","Adverb","Conjunction","Noun"],exp:{he:"מילת חיבור = Conjunction",en:""}}},
+{id:"s23",cat:"speech",col:"#f5a623",isSpeech:true,sent:{he:"הוא הגיע מאוחר כִּי הפקקים היו גדולים.",en:"He arrived late because the traffic was heavy."},q:{he:"מהו חלק הדיבור של כִּי?",en:"What part of speech is 'ki' (because)?"},opts:{he:["מילת יחס","מילת חיבור","תואר הפועל","כינוי גוף"],en:["Preposition","Conjunction","Adverb","Pronoun"]},ans:{he:"מילת חיבור",en:"Conjunction"},exp:{he:"כִּי מחברת שתי פסקאות — מילת חיבור.",en:"Conjunction — 'because' connects two clauses."},bonus:{q:{he:"ומה זה 'מילת חיבור' באנגלית?",en:""},ans:"Conjunction",opts:["Preposition","Conjunction","Adverb","Pronoun"],exp:{he:"מילת חיבור = Conjunction",en:""}}},
+// ── ניקוד ──
+{id:"n01",cat:"nikud",col:"#0fb8a9",sent:{he:"",en:""},q:{he:"מה הצליל של ניקוד הפַּתַח?",en:"What sound does Patach produce?"},opts:{he:["אִ קצר","אַ קצר","אֵ ארוך","אָ ארוך"],en:["i (short)","a (short)","e (long)","a (long)"]},ans:{he:"אַ קצר",en:"a (short)"},exp:{he:"פַּתַח — קו אופקי קטן. צליל אַ קצר. דוגמה: כַּד.",en:"Patach — short horizontal line. Short 'a' sound."}},
+{id:"n02",cat:"nikud",col:"#0fb8a9",sent:{he:"",en:""},q:{he:"מה הצליל של ניקוד הקָמָץ?",en:"What sound does Kamatz produce?"},opts:{he:["אַ קצר","אָ ארוך","אֵ ארוך","אִ"],en:["a (short)","a (long)","e (long)","i"]},ans:{he:"אָ ארוך",en:"a (long)"},exp:{he:"קָמָץ — צליל אָ ארוך. דוגמה: שָׁלוֹם.",en:"Kamatz — long 'a' sound. Example: shalom."}},
+{id:"n03",cat:"nikud",col:"#0fb8a9",sent:{he:"",en:""},q:{he:"מה הצליל של ניקוד הסֶגּוֹל?",en:"What sound does Segol produce?"},opts:{he:["אַ","אֶ קצר","אֵ ארוך","אִ"],en:["a","e (short)","e (long)","i"]},ans:{he:"אֶ קצר",en:"e (short)"},exp:{he:"סֶגּוֹל — שלוש נקודות. צליל אֶ קצר. דוגמה: מֶלֶך.",en:"Segol — three dots. Short 'e' sound."}},
+{id:"n04",cat:"nikud",col:"#0fb8a9",sent:{he:"",en:""},q:{he:"מה הצליל של ניקוד הצֵירֵי?",en:"What sound does Tzere produce?"},opts:{he:["אַ","אֶ קצר","אֵ ארוך","אֻ"],en:["a","e (short)","e (long)","u"]},ans:{he:"אֵ ארוך",en:"e (long)"},exp:{he:"צֵירֵי — שתי נקודות. צליל אֵ ארוך. דוגמה: שֵׁם.",en:"Tzere — two dots. Long 'e' sound. Example: shem."}},
+{id:"n05",cat:"nikud",col:"#0fb8a9",sent:{he:"",en:""},q:{he:"מה הצליל של ניקוד החִירִיק?",en:"What sound does Khirik produce?"},opts:{he:["אַ","אֶ","אִ","אָ"],en:["a","e","i","o"]},ans:{he:"אִ",en:"i"},exp:{he:"חִירִיק — נקודה אחת. צליל אִ. דוגמה: כִּי.",en:"Khirik — single dot. 'i' sound."}},
+{id:"n06",cat:"nikud",col:"#0fb8a9",sent:{he:"",en:""},q:{he:"מה הצליל של ניקוד החוֹלָם?",en:"What sound does Kholam produce?"},opts:{he:["אִ","אֶ","אוֹ","אֻ"],en:["i","e","o","u"]},ans:{he:"אוֹ",en:"o"},exp:{he:"חוֹלָם — נקודה מעל האות. צליל אוֹ. דוגמה: שָׁלוֹם.",en:"Kholam — dot above. 'o' sound."}},
+{id:"n07",cat:"nikud",col:"#0fb8a9",sent:{he:"",en:""},q:{he:"מה הצליל של ניקוד הקֻבּוּץ?",en:"What sound does Kubutz produce?"},opts:{he:["אִ","אֶ","אָ","אֻ קצר"],en:["i","e","a","u (short)"]},ans:{he:"אֻ קצר",en:"u (short)"},exp:{he:"קֻבּוּץ — שלוש נקודות אלכסוניות. צליל אֻ קצר.",en:"Kubutz — three diagonal dots. Short 'u' sound."}},
+{id:"n08",cat:"nikud",col:"#0fb8a9",sent:{he:"",en:""},q:{he:"מה ההבדל בין שׁוּרוּק לקֻבּוּץ?",en:"What is the difference between Shuruk and Kubutz?"},opts:{he:["שניהם אוֹ","שניהם אֻ — שורוק עם וו","שורוק הוא אַ","קיבוץ הוא אֵ"],en:["Both are 'o'","Both 'u' — shuruk uses vav","Shuruk is 'a'","Kubutz is 'e'"]},ans:{he:"שניהם אֻ — שורוק עם וו",en:"Both 'u' — shuruk uses vav"},exp:{he:"שׁוּרוּק = וּ (ארוך). קֻבּוּץ = שלוש נקודות (קצר).",en:"Shuruk = vav+dot (long u). Kubutz = three diagonal dots (short u)."}},
+{id:"n09",cat:"nikud",col:"#0fb8a9",sent:{he:"",en:""},q:{he:"מה הצליל של שְׁוָא נָע?",en:"What sound does a moving Shva (na) produce?"},opts:{he:["אַ","אֶ קצר מאוד","אִ","שקט"],en:["a","very short e","i","silent"]},ans:{he:"אֶ קצר מאוד",en:"very short e"},exp:{he:"שְׁוָא נָע = צליל אֶ קצר בתחילת הברה.",en:"Moving shva = very short 'e' at start of syllable."}},
+{id:"n10",cat:"nikud",col:"#0fb8a9",sent:{he:"",en:""},q:{he:"איזה ניקוד מופיע במילה שֵׁם?",en:"Which vowel appears in the word שֵׁם (shem)?"},opts:{he:["פַּתַח","קָמָץ","חִירִיק","צֵירֵי"],en:["Patach","Kamatz","Khirik","Tzere"]},ans:{he:"צֵירֵי",en:"Tzere"},exp:{he:"שֵׁם — הצֵירֵי נותן את הצליל אֵ.",en:"Tzere under שׁ gives the long 'e' sound in 'shem'."}},
+{id:"n11",cat:"nikud",col:"#0fb8a9",sent:{he:"",en:""},q:{he:"כמה נקודות יש לסֶגּוֹל?",en:"How many dots does Segol have?"},opts:{he:["נקודה אחת","שתי נקודות","שלוש נקודות","אין נקודות"],en:["One dot","Two dots","Three dots","No dots"]},ans:{he:"שלוש נקודות",en:"Three dots"},exp:{he:"סֶגּוֹל = שלוש נקודות. צֵירֵי = שתי נקודות.",en:"Segol = three dots. Tzere = two dots."}},
+{id:"n12",cat:"nikud",col:"#0fb8a9",sent:{he:"",en:""},q:{he:"איזה ניקוד נמצא במילה מַיִם?",en:"Which vowel appears in מַיִם (mayim — water)?"},opts:{he:["קָמָץ","פַּתַח","חִירִיק","צֵירֵי"],en:["Kamatz","Patach","Khirik","Tzere"]},ans:{he:"פַּתַח",en:"Patach"},exp:{he:"מַיִם — הפַּתַח נותן את הצליל אַ.",en:"Patach under מ gives the short 'a' sound."}},
+// ── פעיל / סביל ──
+{id:"p01",cat:"passive",col:"#a855f7",sent:{he:"הוא הִתְגַּלֵּחַ בבוקר.",en:"He shaved in the morning."},q:{he:"הפועל הִתְגַּלֵּחַ — פעיל, סביל, או חוזר?",en:"Is 'hitgale'akh' (shaved) — active, passive, or reflexive?"},opts:{he:["פעיל","סביל","חוזר (רפלקסיבי)","גורם"],en:["Active","Passive","Reflexive","Causative"]},ans:{he:"חוזר (רפלקסיבי)",en:"Reflexive"},exp:{he:"חוזר: הוא גילח את עצמו. בניין הִתְפַּעֵל.",en:"Reflexive — he shaved himself. Hitpa'el binyan."}},
+{id:"p02",cat:"passive",col:"#a855f7",sent:{he:"המכתב נִשְׁלַח אמש.",en:"The letter was sent yesterday."},q:{he:"הפועל נִשְׁלַח — פעיל, סביל, או חוזר?",en:"Is 'nishlakh' (was sent) — active, passive, or reflexive?"},opts:{he:["פעיל","סביל","חוזר","גורם"],en:["Active","Passive","Reflexive","Causative"]},ans:{he:"סביל",en:"Passive"},exp:{he:"סביל: המכתב לא שלח — הוא נשלח. בניין נִפְעַל.",en:"Passive — it was sent. Nif'al binyan."}},
+{id:"p03",cat:"passive",col:"#a855f7",sent:{he:"הוא שלח מייל לחברתו.",en:"He sent an email to his friend."},q:{he:"הפועל שלח — פעיל, סביל, או חוזר?",en:"Is 'shalakh' (sent) — active, passive, or reflexive?"},opts:{he:["פעיל","סביל","חוזר","גורם"],en:["Active","Passive","Reflexive","Causative"]},ans:{he:"פעיל",en:"Active"},exp:{he:"פעיל: הוא עצמו שלח. בניין פָּעַל.",en:"Active — he performed the action. Pa'al binyan."}},
+{id:"p04",cat:"passive",col:"#a855f7",sent:{he:"הסרט צֻלַּם בירושלים.",en:"The film was filmed in Jerusalem."},q:{he:"הפועל צֻלַּם — פעיל, סביל, או חוזר?",en:"Is 'tzulam' (was filmed) — active, passive, or reflexive?"},opts:{he:["פעיל","סביל","חוזר","גורם"],en:["Active","Passive","Reflexive","Causative"]},ans:{he:"סביל",en:"Passive"},exp:{he:"סביל: הסרט לא צילם — הוא צולם. בניין פֻּעַל.",en:"Passive — it was filmed. Pu'al binyan."}},
+{id:"p05",cat:"passive",col:"#a855f7",sent:{he:"היא הִתְקַלְּחָה אחרי האימון.",en:"She showered after the workout."},q:{he:"הפועל הִתְקַלְּחָה — פעיל, סביל, או חוזר?",en:"Is 'hitkalkha' (showered) — active, passive, or reflexive?"},opts:{he:["פעיל","סביל","חוזר (רפלקסיבי)","גורם"],en:["Active","Passive","Reflexive","Causative"]},ans:{he:"חוזר (רפלקסיבי)",en:"Reflexive"},exp:{he:"חוזר: היא קילחה את עצמה. בניין הִתְפַּעֵל.",en:"Reflexive — she showered herself. Hitpa'el."}},
+{id:"p06",cat:"passive",col:"#a855f7",sent:{he:"הם הוּזְמְנוּ למסיבה.",en:"They were invited to the party."},q:{he:"הפועל הוּזְמְנוּ — פעיל, סביל, או חוזר?",en:"Is 'huzimnu' (were invited) — active, passive, or reflexive?"},opts:{he:["פעיל","סביל","חוזר","גורם"],en:["Active","Passive","Reflexive","Causative"]},ans:{he:"סביל",en:"Passive"},exp:{he:"סביל: הם לא הזמינו — הם הוזמנו. בניין הֻפְעַל.",en:"Passive — they were invited. Huf'al binyan."}},
+{id:"p07",cat:"passive",col:"#a855f7",sent:{he:"הוא הִכְנִיס את הילדים לבית.",en:"He brought the children inside."},q:{he:"הפועל הִכְנִיס — פעיל, גורם, או סביל?",en:"Is 'hikhnis' (brought in) — active, causative, or passive?"},opts:{he:["פעיל פשוט","סביל","חוזר","גורם (קאוזטיבי)"],en:["Simple active","Passive","Reflexive","Causative"]},ans:{he:"גורם (קאוזטיבי)",en:"Causative"},exp:{he:"גורם: הוא גרם לילדים להיכנס. בניין הִפְעִיל.",en:"Causative — he caused them to enter. Hif'il binyan."}},
+{id:"p08",cat:"passive",col:"#a855f7",sent:{he:"השיר שֻׁר על ידי הזמרת.",en:"The song was sung by the singer."},q:{he:"הפועל שֻׁר — פעיל, סביל, או חוזר?",en:"Is 'shur' (was sung) — active, passive, or reflexive?"},opts:{he:["פעיל","סביל","חוזר","גורם"],en:["Active","Passive","Reflexive","Causative"]},ans:{he:"סביל",en:"Passive"},exp:{he:"סביל: השיר לא שר — הוא שֻׁר. בניין פֻּעַל.",en:"Passive — the song was sung. Pu'al binyan."}},
+{id:"p09",cat:"passive",col:"#a855f7",sent:{he:"הם הִסְתַּכְּלוּ אחד על השני.",en:"They looked at each other."},q:{he:"הפועל הִסְתַּכְּלוּ — פעיל, סביל, או חוזר?",en:"Is 'histaklu' (looked at each other) — active, passive, or reflexive?"},opts:{he:["פעיל","סביל","חוזר (רפלקסיבי)","גורם"],en:["Active","Passive","Reflexive","Causative"]},ans:{he:"חוזר (רפלקסיבי)",en:"Reflexive"},exp:{he:"חוזר: ההסתכלות הייתה הדדית. בניין הִתְפַּעֵל.",en:"Reflexive/reciprocal — mutual action. Hitpa'el."}},
+{id:"p10",cat:"passive",col:"#a855f7",sent:{he:"הדלת נִסְגְּרָה בפני כולם.",en:"The door was closed in everyone's face."},q:{he:"הפועל נִסְגְּרָה — פעיל, סביל, או חוזר?",en:"Is 'niskera' (was closed) — active, passive, or reflexive?"},opts:{he:["פעיל","סביל","חוזר","גורם"],en:["Active","Passive","Reflexive","Causative"]},ans:{he:"סביל",en:"Passive"},exp:{he:"סביל: הדלת לא סגרה — היא נסגרה. בניין נִפְעַל.",en:"Passive — it was closed. Nif'al binyan."}}
+];
+
+// ══════════════════════════════════════════
+// RECENT QUESTION MEMORY (3 sessions)
+// ══════════════════════════════════════════
+var _recentIds = [];
+var _SESSION_BLOCK = 3; // block for 3 sessions
+
+function getRecentIds() {
+  try {
+    var stored = localStorage.getItem('dikduk_recent');
+    return stored ? JSON.parse(stored) : [];
+  } catch(e) { return []; }
+}
+
+function saveRecentIds(ids) {
+  try { localStorage.setItem('dikduk_recent', JSON.stringify(ids)); } catch(e) {}
+}
+
+function markUsed(ids) {
+  var recent = getRecentIds();
+  // Each entry: {id, session}
+  var session = (parseInt(localStorage.getItem('dikduk_session')||'0'));
+  ids.forEach(function(id) {
+    recent = recent.filter(function(r){ return r.id !== id; });
+    recent.push({id:id, session:session});
+  });
+  // Keep only last 3 sessions
+  recent = recent.filter(function(r){ return r.session >= session - _SESSION_BLOCK + 1; });
+  saveRecentIds(recent);
+}
+
+function getBlockedIds() {
+  var recent = getRecentIds();
+  var session = parseInt(localStorage.getItem('dikduk_session')||'0');
+  return recent.filter(function(r){ return r.session >= session - _SESSION_BLOCK + 1; }).map(function(r){ return r.id; });
+}
+
+function bumpSession() {
+  var s = parseInt(localStorage.getItem('dikduk_session')||'0');
+  localStorage.setItem('dikduk_session', s+1);
+}
+
+function shuffle(arr) {
+  var a = arr.slice();
+  for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}
+  return a;
+}
+
+function pickFromCat(cat, count) {
+  var blocked = getBlockedIds();
+  var pool = QS.filter(function(q){ return q.cat===cat; });
+  var fresh = pool.filter(function(q){ return blocked.indexOf(q.id)<0; });
+  // If not enough fresh, fall back to full pool
+  if(fresh.length < count) fresh = pool;
+  return shuffle(fresh).slice(0, count);
+}
+
+const S={
+  he:{logo:"🇮🇱 דקדוק עברי",homeTitle:"דקדוק עברי",homeSub:"תרגול אינטראקטיבי\nבניינים · חלקי דיבור · ניקוד",modeLabel:"מצב תרגול",modeHeName:"עברית",modeHeSub:"בעברית בלבד",modeEnName:"English",modeEnSub:"English only",modeMixName:"משולב",modeMixSub:"שתי השפות",catLabel:"נושאים",catBinyan:"בניינים",catSpeech:"חלקי דיבור",catNikud:"ניקוד",catPassive:"פעיל / סביל",startBtn:"התחל תרגול ▶",navHome:"בית",navGuide:"מדריך",sentLbl:"המשפט",correct:"נכון מאוד!",wrongPfx:"התשובה: ",bonusLbl:"🌟 בונוס — באנגלית",next:"שאלה הבאה →",finish:"לתוצאות →",resLbl:"נכון",resTitles:["מצוין! כל הכבוד!","יפה מאוד!","כדאי לחזור שוב!"],againBtn:"תרגל שוב 🔄",shareBtn:"שתף את התוצאה 📤",homeBtn:"חזור לדף הבית",bdTitle:"פירוט לפי נושא",guideTitle:"מדריך דקדוק",guideSub:"כל מה שלמדנו — במקום אחד",gtBinyan:"בניינים",gtSpeech:"חלקי דיבור",gtNikud:"ניקוד",gtPassive:"פעיל / סביל",cats:{binyan:"בניינים",speech:"חלקי דיבור",nikud:"ניקוד",passive:"פעיל / סביל"}},
+  en:{logo:"🇮🇱 Hebrew Grammar",homeTitle:"Hebrew Grammar",homeSub:"Interactive drill\nBinyans · Parts of speech · Nikud",modeLabel:"Drill mode",modeHeName:"עברית",modeHeSub:"Hebrew only",modeEnName:"English",modeEnSub:"English only",modeMixName:"Mixed",modeMixSub:"Both languages",catLabel:"Topics",catBinyan:"Binyans",catSpeech:"Parts of speech",catNikud:"Nikud",catPassive:"Active / Passive",startBtn:"Start drill ▶",navHome:"Home",navGuide:"Guide",sentLbl:"Sentence",correct:"Correct!",wrongPfx:"Answer: ",bonusLbl:"🌟 Bonus question",next:"Next question →",finish:"See results →",resLbl:"correct",resTitles:["Excellent! Well done!","Very good!","Keep practicing!"],againBtn:"Drill again 🔄",shareBtn:"Share result 📤",homeBtn:"Back to home",bdTitle:"Breakdown by topic",guideTitle:"Grammar Guide",guideSub:"Everything we learned — in one place",gtBinyan:"Binyans",gtSpeech:"Parts of speech",gtNikud:"Nikud",gtPassive:"Active / Passive",cats:{binyan:"Binyans",speech:"Parts of speech",nikud:"Nikud",passive:"Active/Passive"}}
+};
+function s(k){return S[lang][k]||k}
+
+let lang='he',drillMode='he',shuffled=[],idx=0,score=0,answers=[],answered=false,bonusAnswered=false;
+
+function setLang(l){lang=l;document.getElementById('btn-he').className='lang-btn'+(l==='he'?' on':'');document.getElementById('btn-en').className='lang-btn'+(l==='en'?' on':'');document.documentElement.lang=l;document.documentElement.dir=l==='he'?'rtl':'ltr';applyStrings();buildGuide();}
+function applyStrings(){document.getElementById('logo-txt').textContent=s('logo');document.getElementById('home-title').textContent=s('homeTitle');document.getElementById('home-sub').innerHTML=s('homeSub').replace('\n','<br>');document.getElementById('mode-label').textContent=s('modeLabel');document.getElementById('mode-he-name').textContent=s('modeHeName');document.getElementById('mode-he-sub').textContent=s('modeHeSub');document.getElementById('mode-en-name').textContent=s('modeEnName');document.getElementById('mode-en-sub').textContent=s('modeEnSub');document.getElementById('mode-mix-name').textContent=s('modeMixName');document.getElementById('mode-mix-sub').textContent=s('modeMixSub');document.getElementById('cat-label').textContent=s('catLabel');document.getElementById('cat-binyan').textContent=s('catBinyan');document.getElementById('cat-speech').textContent=s('catSpeech');document.getElementById('cat-nikud').textContent=s('catNikud');document.getElementById('cat-passive').textContent=s('catPassive');document.getElementById('start-btn').textContent=s('startBtn');document.getElementById('nav-home-lbl').textContent=s('navHome');document.getElementById('nav-guide-lbl').textContent=s('navGuide');document.getElementById('guide-title').textContent=s('guideTitle');document.getElementById('guide-sub').textContent=s('guideSub');document.getElementById('gt-binyan').textContent=s('gtBinyan');document.getElementById('gt-speech').textContent=s('gtSpeech');document.getElementById('gt-nikud').textContent=s('gtNikud');document.getElementById('gt-passive').textContent=s('gtPassive');}
+function setMode(m){drillMode=m;document.querySelectorAll('.mode-card').forEach(function(c){c.classList.toggle('on',c.dataset.mode===m);});}
+function navTo(page){document.querySelectorAll('.page').forEach(function(p){p.classList.remove('on');});document.getElementById('p-'+page).classList.add('on');document.querySelectorAll('.bnav-btn').forEach(function(b){b.classList.remove('on');});var nb=document.getElementById('nav-'+page);if(nb)nb.classList.add('on');document.getElementById('nbar').style.display='none';window.scrollTo(0,0);}
+
+function startQuiz(){
+  bumpSession();
+  // Pick fresh questions per category
+  var picks = [];
+  picks = picks.concat(pickFromCat('binyan', 5));
+  picks = picks.concat(pickFromCat('speech', 4));
+  picks = picks.concat(pickFromCat('nikud', 2));
+  picks = picks.concat(pickFromCat('passive', 2));
+  shuffled = shuffle(picks);
+  // Mark these as used
+  markUsed(shuffled.map(function(q){return q.id;}));
+  idx=0;score=0;answers=[];answered=false;
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('on');});
+  document.getElementById('p-quiz').classList.add('on');
+  document.querySelectorAll('.bnav-btn').forEach(function(b){b.classList.remove('on');});
+  render();
+}
+
+var _currentOpts=[];
+var _currentBOpts=[];
+
+function pick(i){
+  if(answered)return;
+  answered=true;
+  var sel=_currentOpts[i];
+  var body=document.getElementById('q-body');
+  var correct=body.dataset.ans,col=body.dataset.col,ql=body.dataset.ql;
+  var q=shuffled[idx];
+  var ok=sel===correct;
+  if(ok)score++;
+  answers.push({ok:ok,cat:q.cat,col:q.col});
+  _currentOpts.forEach(function(o,j){
+    var btn=document.getElementById('o'+j);
+    if(!btn)return;
+    if(o===correct){btn.classList.add('ok');btn.innerHTML='<span class="oico">✓</span>'+o;}
+    else if(o===sel&&!ok){btn.classList.add('bad');btn.innerHTML='<span class="oico">✗</span>'+o;}
+    else btn.classList.add('dim');
+    btn.disabled=true;
+  });
+  document.getElementById('exp-area').innerHTML='<div class="ebox" style="border-color:'+(ok?'#4ecdc444':'#e9456044')+'"><div class="ehdr"><span style="font-size:1.15rem">'+(ok?'🎯':'💡')+'</span><span class="etitle" style="color:'+(ok?'#4ecdc4':'#f5a623')+'">'+(ok?s('correct'):s('wrongPfx')+correct)+'</span></div><div class="etxt">'+q.exp[ql]+'</div></div>';
+  if(ok&&q.isSpeech&&ql==='he')renderBonus(q,ql);else showNextBtn(col);
+}
+
+function pickBonus(i){
+  if(bonusAnswered)return;
+  bonusAnswered=true;
+  var sel=_currentBOpts[i];
+  var area=document.getElementById('bonus-area');
+  var correct=area.dataset.ans,exp=area.dataset.exp,col=shuffled[idx].col;
+  var ok=sel===correct;
+  _currentBOpts.forEach(function(o,j){
+    var btn=document.getElementById('bo'+j);
+    if(!btn)return;
+    if(o===correct)btn.classList.add('ok');
+    else if(o===sel&&!ok)btn.classList.add('bad');
+    else btn.classList.add('dim');
+    btn.disabled=true;
+  });
+  document.getElementById('bonus-result').innerHTML='<div style="margin-top:10px;font-size:.84rem;color:'+(ok?'#4ecdc4':'#f5a623')+'">'+(ok?'🎯 נכון!':'💡 '+correct)+'</div><div class="bonus-result">'+exp+'</div>';
+  showNextBtn(col);
+}
+
+function render(){
+  answered=false;bonusAnswered=false;
+  var q=shuffled[idx],total=shuffled.length,ql=(drillMode==='he'?'he':drillMode==='en'?'en':(idx%2===0?'he':'en'));
+  var pill=document.getElementById('q-pill');
+  pill.textContent=s('cats')[q.cat]||q.cat;
+  pill.style.background=q.col+'22';pill.style.color=q.col;pill.style.borderColor=q.col+'55';
+  document.getElementById('q-cnt').textContent=(idx+1)+' / '+total;
+  var pf=document.getElementById('q-prog');
+  pf.style.width=((idx/total)*100)+'%';pf.style.background=q.col;
+  document.getElementById('nbar').style.display='none';
+  var sent=q.sent[ql],question=q.q[ql];
+  _currentOpts=shuffle(q.opts[ql]);
+  var html='';
+  if(sent)html+='<div class="sbox"><div class="slbl">'+s('sentLbl')+'</div><div class="stxt" style="color:'+q.col+'">'+sent+'</div></div>';
+  html+='<div class="qtxt-wrap"><div class="qtxt">'+question+'</div><button class="speak-inline-btn" id="speak-btn" onclick="speakCurrent()">🔊</button></div><div class="olist">';
+  _currentOpts.forEach(function(o,i){html+='<button class="obtn" id="o'+i+'" onclick="pick('+i+')">'+o+'</button>';});
+  html+='</div><div id="exp-area"></div><div id="bonus-area"></div>';
+  var body=document.getElementById('q-body');
+  body.innerHTML=html;
+  body.dataset.ans=q.ans[ql];body.dataset.col=q.col;body.dataset.ql=ql;body.dataset.question=question;
+  window.scrollTo(0,0);
+}
+
+function renderBonus(q,ql){
+  var bonus=q.bonus;
+  _currentBOpts=shuffle(bonus.opts);
+  var html='<div class="bonus-box"><div class="bonus-lbl">'+s('bonusLbl')+'</div><div class="bonus-q">'+bonus.q[ql]+'</div><div class="bonus-opts" id="bonus-opts">';
+  _currentBOpts.forEach(function(o,i){html+='<button class="bonus-opt" id="bo'+i+'" onclick="pickBonus('+i+')">'+o+'</button>';});
+  html+='</div><div id="bonus-result"></div></div>';
+  var area=document.getElementById('bonus-area');
+  area.innerHTML=html;area.dataset.ans=bonus.ans;area.dataset.exp=bonus.exp[ql];
+}
+
+function showNextBtn(col){var nb=document.getElementById('nbar'),nbtn=document.getElementById('nbtn');nb.style.display='block';nbtn.style.background=col;nbtn.textContent=idx+1>=shuffled.length?s('finish'):s('next');}
+function nextQ(){idx++;if(idx>=shuffled.length)showResults();else render();}
+
+function showResults(){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('on');});
+  document.getElementById('p-res').classList.add('on');
+  document.getElementById('nbar').style.display='none';
+  var total=shuffled.length,pct=Math.round(score/total*100),titles=s('resTitles');
+  var emo,ti,cc;
+  if(pct>=85){emo='🏆';ti=0;cc='cgreat';}else if(pct>=60){emo='✨';ti=1;cc='cok';}else{emo='💪';ti=2;cc='cbad';}
+  document.getElementById('r-emo').textContent=emo;
+  var rtEl=document.getElementById('r-title');rtEl.textContent=titles[ti];rtEl.className='rtitle '+cc;
+  var pctEl=document.getElementById('r-pct');pctEl.textContent=pct+'%';pctEl.className='srpct '+cc;
+  document.getElementById('r-lbl').textContent=s('resLbl');
+  document.getElementById('r-again').textContent=s('againBtn');
+  document.getElementById('r-share').textContent=s('shareBtn');
+  document.getElementById('r-home').textContent=s('homeBtn');
+  var circ=2*Math.PI*54,off=circ*(1-pct/100);
+  var cols={cgreat:'#4ecdc4',cok:'#f5a623',cbad:'#e94560'};
+  var ring=document.getElementById('r-ring');ring.style.stroke=cols[cc];
+  setTimeout(function(){ring.style.strokeDashoffset=off;},80);
+  var byCat={};
+  answers.forEach(function(a){if(!byCat[a.cat])byCat[a.cat]={tot:0,ok:0,col:a.col};byCat[a.cat].tot++;if(a.ok)byCat[a.cat].ok++;});
+  var bhtml='<div class="btitle">'+s('bdTitle')+'</div>';
+  Object.entries(byCat).forEach(function(e){var cat=e[0],d=e[1];var p=Math.round(d.ok/d.tot*100),nm=s('cats')[cat]||cat;bhtml+='<div class="brow"><div class="bcat" style="color:'+d.col+'">'+nm+'</div><div class="bbar"><div class="bfill" style="width:'+p+'%;background:'+d.col+'"></div></div><div class="bsc">'+d.ok+'/'+d.tot+'</div></div>';});
+  document.getElementById('r-bdown').innerHTML=bhtml;
+}
+
+function shareResult(){var total=shuffled.length,pct=Math.round(score/total*100),emo=pct>=85?'🏆':pct>=60?'✨':'💪';var txt=lang==='he'?(emo+' תרגול דקדוק עברי: '+score+'/'+total+' ('+pct+'%)\n'+location.href):(emo+' Hebrew Grammar drill: '+score+'/'+total+' ('+pct+'%)\n'+location.href);if(navigator.share)navigator.share({title:'Hebrew Grammar',text:txt});else navigator.clipboard.writeText(txt).then(function(){alert(lang==='he'?'הועתק!':'Copied!');});}
+function setGTab(t){document.querySelectorAll('.gtab').forEach(function(b){b.classList.toggle('on',b.dataset.t===t);});document.querySelectorAll('.gpanel').forEach(function(p){p.classList.toggle('on',p.id==='gp-'+t);});}
+function buildGuide(){buildBinyanPanel();buildSpeechPanel();buildNikudPanel();buildPassivePanel();}
+function buildBinyanPanel(){var html='';BINYANS.forEach(function(b){html+='<div class="gcard" style="--gc:'+b.col+'"><div class="gc-title">'+b.he+'</div><div class="gc-sub">'+b.en+' · '+(lang==='he'?b.type_he:b.type_en)+'</div><div><div style="font-size:.78rem;color:var(--dim);margin-bottom:3px">'+(lang==='he'?'דוגמאות:':'Examples:')+'</div><div class="gc-ex">'+(lang==='he'?b.ex_he:b.ex_en)+'</div></div><div class="gc-desc">'+(lang==='he'?b.desc_he:b.desc_en)+'</div></div>';});document.getElementById('gp-binyan').innerHTML=html;}
+function buildSpeechPanel(){var html='<div class="speech-grid">';SPEECH_PARTS.forEach(function(sp){html+='<div class="sp-card"><div class="sp-he">'+sp.he+'</div><div class="sp-en">'+sp.en+'</div><div class="sp-q">'+(lang==='he'?sp.q_he:sp.q_en)+'</div><div style="font-size:.72rem;color:#555;margin-top:4px">'+sp.ex+'</div></div>';});html+='</div>';document.getElementById('gp-speech').innerHTML=html;}
+function buildNikudPanel(){var html='<div style="font-size:.82rem;color:var(--dim);margin-bottom:12px">'+(lang==='he'?'9 סימני הניקוד':'The 9 vowel signs')+'</div><table class="ntable"><thead><tr><th>'+(lang==='he'?'סימן':'Sign')+'</th><th>'+(lang==='he'?'שם עברי':'Hebrew name')+'</th><th>English</th><th>'+(lang==='he'?'צליל':'Sound')+'</th><th>'+(lang==='he'?'דוגמה':'Example')+'</th></tr></thead><tbody>';NIKUD.forEach(function(n){html+='<tr><td class="sym">'+n.sym+'א</td><td><div class="nm-he">'+n.name_he+'</div></td><td><div class="nm-en">'+n.name_en+'</div></td><td style="color:var(--ok)">'+n.sound+'</td><td style="font-family:\'Frank Ruhl Libre\',serif">'+n.ex_he+' / '+n.ex_en+'</td></tr>';});html+='</tbody></table>';document.getElementById('gp-nikud').innerHTML=html;}
+function buildPassivePanel(){var html='<div style="font-size:.82rem;color:var(--dim);margin-bottom:12px">'+(lang==='he'?'כל בניין פעיל מול הסביל שלו':'Active binyans and their passives')+'</div><table class="ptable"><thead><tr><th>'+(lang==='he'?'פעיל':'Active')+'</th><th>→</th><th>'+(lang==='he'?'סביל':'Passive')+'</th><th>'+(lang==='he'?'הערה':'Note')+'</th></tr></thead><tbody>';PASSIVE_TABLE.forEach(function(r){html+='<tr><td><div class="ph" style="color:var(--binyan)">'+r.active_he+'</div><div class="pe">'+r.active_en+'</div></td><td style="color:var(--dim)">→</td><td><div class="ph" style="color:var(--passive)">'+r.passive_he+'</div><div class="pe">'+r.passive_en+'</div></td><td><div class="pd">'+(lang==='he'?r.desc_he:r.desc_en)+'</div></td></tr>';});html+='</tbody></table><div style="margin-top:16px;background:rgba(168,85,247,.08);border:1px solid rgba(168,85,247,.2);border-radius:12px;padding:13px;font-size:.83rem;line-height:1.7;color:#bbb"><strong style="color:var(--passive)">⚠️ '+(lang==='he'?'לא לבלבל:':'Don\'t confuse:')+'</strong><br>'+(lang==='he'?'פֻּעַל (סביל של פִּעֵל) ≠ הֻפְעַל (סביל של הִפְעִיל)':'Pu\'al (passive of Pi\'el) ≠ Huf\'al (passive of Hif\'il)')+'</div>';document.getElementById('gp-passive').innerHTML=html;}
+var autoSpeak=false;
+function toggleAutoSpeak(on){autoSpeak=on;}
+function speakCurrent(){var body=document.getElementById('q-body');speakText(body.dataset.question||'',body.dataset.ql||'he');}
+function speakText(text,ql){if(!window.speechSynthesis)return;window.speechSynthesis.cancel();var btn=document.getElementById('speak-btn'),utt=new SpeechSynthesisUtterance(text);utt.lang=ql==='he'?'he-IL':'en-US';utt.rate=0.88;if(btn)btn.classList.add('speaking');utt.onend=function(){if(btn)btn.classList.remove('speaking');};utt.onerror=function(){if(btn)btn.classList.remove('speaking');};window.speechSynthesis.speak(utt);}
+
+applyStrings();
+buildGuide();
+</script>
+</body>
+</html>
